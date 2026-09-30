@@ -1,77 +1,163 @@
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: 'Belum Mula' | 'Sedang Berjalan' | 'Selesai';
-  priority: 'Rendah' | 'Sederhana' | 'Tinggi';
-  assignee: string;
-  dueDate: string;
-  createdAt: string;
+import type {
+  User,
+  Project,
+  Task,
+  Notification,
+} from "../types";
+
+const STORAGE_KEY = "planmalaysia_portal_data";
+
+interface PortalData {
+  users: User[];
+  projects: Project[];
+  tasks: Task[];
+  notifications: Notification[];
 }
 
-const STORAGE_KEY = 'planmalaysia_tasks';
+const defaultData: PortalData = {
+  users: [
+    {
+      id: "admin-001",
+      name: "Administrator",
+      email: "admin@planmalaysia.gov.my",
+      role: "Admin",
+      password: "admin123",
+    },
+    {
+      id: "staff-001",
+      name: "Unit Bank Data",
+      email: "bankdata@planmalaysia.gov.my",
+      role: "Staff",
+      password: "staff123",
+    },
+    {
+      id: "pengarah-001",
+      name: "Pengarah PLANMalaysia Perlis",
+      email: "pengarah@planmalaysia.gov.my",
+      role: "Pengarah",
+      password: "pengarah123",
+    },
+  ],
 
-const defaultTasks: Task[] = [
-  {
-    id: '1',
-    title: 'Kemaskini Data Perancangan Negeri Perlis',
-    description: 'Mengemaskini maklumat data perancangan bandar dan desa.',
-    status: 'Sedang Berjalan',
-    priority: 'Tinggi',
-    assignee: 'Unit Bank Data',
-    dueDate: '2026-10-15',
-    createdAt: '2026-09-30',
-  },
-  {
-    id: '2',
-    title: 'Penyediaan Laporan GIS',
-    description: 'Menyediakan laporan berkaitan data geospatial.',
-    status: 'Belum Mula',
-    priority: 'Sederhana',
-    assignee: 'Unit GIS',
-    dueDate: '2026-10-20',
-    createdAt: '2026-09-30',
-  },
-  {
-    id: '3',
-    title: 'Semakan Sistem Portal',
-    description: 'Semakan fungsi dan paparan portal pengurusan tugasan.',
-    status: 'Selesai',
-    priority: 'Rendah',
-    assignee: 'Unit ICT',
-    dueDate: '2026-09-30',
-    createdAt: '2026-09-25',
-  },
-];
+  projects: [
+    {
+      id: "project-001",
+      name: "Pengurusan Data Perancangan Negeri Perlis",
+      description:
+        "Pengurusan dan pengemaskinian data perancangan bandar dan desa Negeri Perlis.",
+      staffIds: ["staff-001"],
+      createdAt: "2026-09-01",
+      endDate: "2026-12-31",
+      status: "Dalam Proses",
+    },
+  ],
 
-function getTasks(): Task[] {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  tasks: [
+    {
+      id: "task-001",
+      projectId: "project-001",
+      title: "Kemaskini Data Perancangan Negeri Perlis",
+      description:
+        "Mengemaskini maklumat data perancangan bandar dan desa.",
+      assignedTo: "staff-001",
+      status: "In Progress",
+      startDate: "2026-09-30",
+      deadline: "2026-10-15",
+      createdAt: "2026-09-30",
+    },
+    {
+      id: "task-002",
+      projectId: "project-001",
+      title: "Penyediaan Laporan GIS",
+      description:
+        "Menyediakan laporan berkaitan data geospatial.",
+      assignedTo: "staff-001",
+      status: "Pending",
+      startDate: "2026-09-30",
+      deadline: "2026-10-20",
+      createdAt: "2026-09-30",
+    },
+    {
+      id: "task-003",
+      projectId: "project-001",
+      title: "Semakan Sistem Portal",
+      description:
+        "Semakan fungsi dan paparan portal pengurusan tugasan.",
+      assignedTo: "staff-001",
+      status: "Completed",
+      startDate: "2026-09-25",
+      deadline: "2026-09-30",
+      createdAt: "2026-09-25",
+    },
+  ],
 
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch {
-      return defaultTasks;
-    }
+  notifications: [],
+};
+
+function getData(): PortalData {
+  if (typeof window === "undefined") {
+    return defaultData;
   }
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTasks));
-  return defaultTasks;
+  const stored = localStorage.getItem(STORAGE_KEY);
+
+  if (!stored) {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(defaultData)
+    );
+
+    return defaultData;
+  }
+
+  try {
+    const parsed = JSON.parse(stored);
+
+    return {
+      users: Array.isArray(parsed.users)
+        ? parsed.users
+        : defaultData.users,
+
+      projects: Array.isArray(parsed.projects)
+        ? parsed.projects
+        : defaultData.projects,
+
+      tasks: Array.isArray(parsed.tasks)
+        ? parsed.tasks
+        : defaultData.tasks,
+
+      notifications: Array.isArray(parsed.notifications)
+        ? parsed.notifications
+        : defaultData.notifications,
+    };
+  } catch {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(defaultData)
+    );
+
+    return defaultData;
+  }
 }
 
-function saveTasks(tasks: Task[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+function saveData(data: PortalData) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(data)
+    );
+  }
 }
 
 export const api = {
   async getData() {
-    return {
-      tasks: getTasks(),
-    };
+    return getData();
   },
 
-  async createTask(task: Omit<Task, 'id' | 'createdAt'>) {
-    const tasks = getTasks();
+  async createTask(
+    task: Omit<Task, "id" | "createdAt">
+  ) {
+    const data = getData();
 
     const newTask: Task = {
       ...task,
@@ -79,29 +165,40 @@ export const api = {
       createdAt: new Date().toISOString(),
     };
 
-    saveTasks([...tasks, newTask]);
+    data.tasks = [...data.tasks, newTask];
+
+    saveData(data);
 
     return newTask;
   },
 
-  async updateTask(id: string, updates: Partial<Task>) {
-    const tasks = getTasks();
+  async updateTask(
+    id: string,
+    updates: Partial<Task>
+  ) {
+    const data = getData();
 
-    const updatedTasks = tasks.map((task) =>
-      task.id === id ? { ...task, ...updates } : task
+    data.tasks = data.tasks.map((task) =>
+      task.id === id
+        ? { ...task, ...updates }
+        : task
     );
 
-    saveTasks(updatedTasks);
+    saveData(data);
 
-    return updatedTasks.find((task) => task.id === id);
+    return data.tasks.find(
+      (task) => task.id === id
+    );
   },
 
   async deleteTask(id: string) {
-    const tasks = getTasks();
+    const data = getData();
 
-    const updatedTasks = tasks.filter((task) => task.id !== id);
+    data.tasks = data.tasks.filter(
+      (task) => task.id !== id
+    );
 
-    saveTasks(updatedTasks);
+    saveData(data);
 
     return true;
   },
