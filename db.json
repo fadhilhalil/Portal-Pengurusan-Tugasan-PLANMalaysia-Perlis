@@ -1,0 +1,42 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "role": "Admin",
+      "password": "password"
+    },
+    {
+      "id": "2",
+      "name": "Staff 1",
+      "email": "staff1@example.com",
+      "role": "Staff",
+      "password": "password"
+    },
+    {
+      "id": "3",
+      "name": "Staff 2",
+      "email": "staff2@example.com",
+      "role": "Staff",
+      "password": "password"
+    },
+    {
+      "id": "4",
+      "name": "Staff 3",
+      "email": "staff3@example.com",
+      "role": "Staff",
+      "password": "password"
+    },
+    {
+      "id": "5",
+      "name": "Pengarah User",
+      "email": "pengarah@example.com",
+      "role": "Pengarah",
+      "password": "password"
+    }
+  ],
+  "projects": [],
+  "tasks": [],
+  "notifications": []
+}

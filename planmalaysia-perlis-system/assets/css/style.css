@@ -1,0 +1,209 @@
+/**
+ * ========================================================================
+ * GAYA KUSTOM SISTEM MAKLUMAT KERAJAAN (style.css)
+ * JABATAN PERANCANGAN BANDAR DAN DESA NEGERI PERLIS (PLANMalaysia @ Perlis)
+ * ========================================================================
+ */
+
+:root {
+    --pm-navy: #0b2545;
+    --pm-navy-dark: #07192f;
+    --pm-navy-light: #134074;
+    --pm-gold: #c99700;
+    --pm-gold-light: #fef3c7;
+    --pm-bg-light: #f8fafc;
+    --pm-border: #e2e8f0;
+    --pm-text-dark: #1e293b;
+    --pm-text-muted: #64748b;
+    --sidebar-width: 260px;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--pm-text-dark);
+    background-color: var(--pm-bg-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* WARNA KHAS JABATAN */
+.bg-navy {
+    background-color: var(--pm-navy) !important;
+}
+
+.text-navy {
+    color: var(--pm-navy) !important;
+}
+
+.btn-navy {
+    background-color: var(--pm-navy);
+    color: #ffffff;
+    border-color: var(--pm-navy);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-navy:hover, .btn-navy:focus {
+    background-color: var(--pm-navy-dark);
+    color: #ffffff;
+    border-color: var(--pm-navy-dark);
+    box-shadow: 0 4px 10px rgba(11, 37, 69, 0.25);
+}
+
+.tracking-wide {
+    letter-spacing: 0.5px;
+}
+
+/* STRUKTUR PAPAN PEMUKA & SIDEBAR */
+#wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+    min-height: calc(100vh - 60px - 50px);
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    transition: all 0.3s ease;
+    z-index: 1020;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar .nav-link {
+    color: #475569;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.65rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.15s ease-in-out;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #f1f5f9;
+    color: var(--pm-navy);
+}
+
+.sidebar .nav-link.active {
+    background-color: #e0f2fe;
+    color: #0284c7;
+    font-weight: 600;
+}
+
+.sidebar .nav-link.active i {
+    color: #0284c7 !important;
+}
+
+.page-content {
+    background-color: #f8fafc;
+    min-width: 0;
+    overflow-y: auto;
+}
+
+/* RESPONSIVE TOGGLE UNTUK SKRIN KECIL */
+@media (max-width: 991.98px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: -280px;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    .sidebar.show {
+        left: 0;
+    }
+}
+
+/* KAD STATISTIK (KPI) */
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* JADUAL DATA KERAJAAN */
+.table th {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    background-color: #f8fafc;
+    border-top: none;
+}
+
+.table td {
+    vertical-align: middle;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+}
+
+.btn-xs {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
+}
+
+/* KAKI LAMAN (FOOTER) */
+.gov-footer {
+    margin-top: auto;
+}
+
+.hover-white:hover {
+    color: #ffffff !important;
+}
+
+/* GAYA KHAS CETAKAN (PRINTING MEDIA) */
+@media print {
+    body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11pt;
+    }
+
+    header.navbar,
+    .sidebar,
+    .no-print,
+    .btn,
+    .breadcrumb,
+    .gov-footer,
+    .alert {
+        display: none !important;
+    }
+
+    #wrapper {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .page-content {
+        padding: 0 !important;
+        background: transparent !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .table {
+        border: 1px solid #000000 !important;
+    }
+
+    .table th, .table td {
+        border: 1px solid #000000 !important;
+        color: #000000 !important;
+    }
+
+    .badge {
+        border: 1px solid #000000 !important;
+        color: #000000 !important;
+        background: transparent !important;
+    }
+}

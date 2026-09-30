@@ -1,0 +1,6 @@
+{
+  "name": "Portal Pengurusan Tugasan Jabatan Perancangan",
+  "description": "Sistem Portal Rasmi Pengurusan Tugasan Jabatan Perancangan Bandar dan Desa Negeri Perlis (PLANMalaysia Perlis) dengan sokongan Admin, Staf, dan Pengarah.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

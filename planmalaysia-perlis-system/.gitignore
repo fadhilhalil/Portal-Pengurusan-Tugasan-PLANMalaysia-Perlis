@@ -1,0 +1,64 @@
+# ==========================================
+# PLANMalaysia Perlis Git Ignore
+# Sesuai untuk IIS Windows Server 2019 & GitHub
+# ==========================================
+
+# 1. Konfigurasi Sensitif & Kredensial
+.env
+.env.local
+.env.production
+config/database.php
+config/secrets.php
+
+# 2. Direktori Muat Naik & Fail Pengguna
+/uploads/*
+!/uploads/.gitkeep
+/temp/*
+!/temp/.gitkeep
+
+# 3. Fail Log & Ralat Sistem
+/logs/*
+!/logs/.gitkeep
+*.log
+error_log
+php_errors.log
+
+# 4. Fail Sistem Operasi & Editor
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# IDE & Kod Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# 5. IIS & Web Server
+web.config.bak
+web.config.local
+web.config.user
+App_Data/
+
+# 6. Sandaran & Pakej
+*.bak
+*.old
+*.orig
+*.tmp
+*.sql.gz
+*.tar.gz
+*.zip
+node_modules/
+vendor/
