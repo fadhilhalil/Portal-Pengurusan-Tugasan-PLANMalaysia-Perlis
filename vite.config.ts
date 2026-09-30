@@ -6,9 +6,10 @@ import { defineConfig, loadEnv } from 'vite';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
 
-  return {
-    base: '/Portal-Pengurusan-Tugasan-PLANMalaysia-Perlis/',
-    plugins: [react(), tailwindcss()],
+export default defineConfig({
+  base: '/Portal-Pengurusan-Tugasan-PLANMalaysia-Perlis/',
+  plugins: [react(), tailwindcss()],
+})
 
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
