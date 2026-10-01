@@ -541,7 +541,14 @@ const StaffDirectory = ({ users }: { users: User[] }) => {
 
 const Dashboard = ({ user, data }: { user: User, data: any }) => {
   const stats = [
-    { label: 'Jumlah Tugasan', value: data.projects.length, icon: Briefcase, color: 'text-blue-600', trend: '↑ 3 bulan ini', trendColor: 'text-emerald-500' },
+    { {
+  label: 'Jumlah Tugasan Utama',
+  value: data.projects.length,
+  icon: Briefcase,
+  color: 'text-blue-600',
+  trend: 'Rekod tugasan jabatan',
+  trendColor: 'text-slate-400'
+},
     { label: 'Tugasan Aktif', value: data.tasks.filter((t: any) => t.status !== 'Completed').length, icon: CheckSquare, color: 'text-blue-600', trend: '82% dalam jadual', trendColor: 'text-slate-400' },
     { label: 'Staf Bertugas', value: data.users.filter((u: any) => u.role === 'Staff').length, icon: Users, color: 'text-blue-600', trend: '5 Admin | 23 Staf', trendColor: 'text-slate-400' },
     { label: 'Tugasan Lewat', value: data.tasks.filter((t: any) => t.status !== 'Completed' && isBefore(new Date(t.deadline), new Date())).length, icon: Clock, color: 'text-red-600', trend: 'Peringatan dihantar', trendColor: 'text-red-500' },
@@ -662,7 +669,22 @@ const Dashboard = ({ user, data }: { user: User, data: any }) => {
                 .sort((a: any, b: any) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
                 .slice(0, 5)
                 .map((task: any) => {
-                  const daysLeft = differenceInDays(new Date(task.deadline), new Date());
+                 const daysLeft = differenceInDays(
+  new Date(task.deadline),
+  new Date()
+);
+
+let deadlineText = '';
+
+if (daysLeft < 0) {
+  deadlineText = 'Tamat tempoh';
+} else if (daysLeft === 0) {
+  deadlineText = 'Tamat hari ini';
+} else if (daysLeft === 1) {
+  deadlineText = 'Tamat esok';
+} else {
+  deadlineText = `Tamat dalam ${daysLeft} hari`;
+};
                   const isUrgent = daysLeft <= 3;
                   return (
                     <div key={task.id} className="timeline-item">
