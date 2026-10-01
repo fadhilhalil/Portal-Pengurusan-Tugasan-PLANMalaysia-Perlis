@@ -460,9 +460,10 @@ const PortalHome = ({
               className="p-4 border border-[#e2e8f0] rounded-xl bg-white hover:border-[#2563eb]/40 hover:shadow-md transition-all flex flex-col items-center text-center space-y-3"
             >
               <Avatar className="h-14 w-14 border-2 border-blue-100 shadow-sm">
-                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${u.name}`} />
-                <AvatarFallback>{u.name[0]}</AvatarFallback>
-              </Avatar>
+  <AvatarFallback className="bg-slate-100 text-slate-500">
+    <UserCircle className="h-9 w-9" />
+  </AvatarFallback>
+</Avatar>
               <div className="w-full">
                 <p className="font-bold text-sm text-[#0f172a] truncate">{u.name}</p>
                 <p className="text-[11px] text-[#64748b] truncate">{u.email}</p>
