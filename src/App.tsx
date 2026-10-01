@@ -541,7 +541,7 @@ const StaffDirectory = ({ users }: { users: User[] }) => {
 
 const Dashboard = ({ user, data }: { user: User, data: any }) => {
   const stats = [
-    { {
+    { 
   label: 'Jumlah Tugasan Utama',
   value: data.projects.length,
   icon: Briefcase,
