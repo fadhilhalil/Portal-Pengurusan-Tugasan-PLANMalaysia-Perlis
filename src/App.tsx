@@ -1715,7 +1715,13 @@ export default function App() {
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-1.5 text-slate-400">
             <Clock className="w-3 h-3 text-blue-400" />
-            <span>Isnin, 10 Ogos 2026</span>
+            <span>
+  {formatMalaysiaDate(currentTime)}
+</span>
+
+<span className="text-slate-500 hidden lg:inline">
+  {formatMalaysiaTime(currentTime)}
+</span>
           </div>
 
           <div className="flex items-center gap-1 bg-slate-800 rounded px-1.5 py-0.5">
