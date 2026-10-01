@@ -67,6 +67,96 @@ import {
 
 import logoPMPerlis from '@/components/ui/PMPERLIS_New.png';
 
+const MSIA_TIME_ZONE = 'Asia/Kuala_Lumpur';
+
+const DAY_NAMES_MS = [
+  'Ahad',
+  'Isnin',
+  'Selasa',
+  'Rabu',
+  'Khamis',
+  'Jumaat',
+  'Sabtu',
+];
+
+const MONTH_NAMES_MS = [
+  'Januari',
+  'Februari',
+  'Mac',
+  'April',
+  'Mei',
+  'Jun',
+  'Julai',
+  'Ogos',
+  'September',
+  'Oktober',
+  'November',
+  'Disember',
+];
+
+function getMalaysiaDateParts(date = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: MSIA_TIME_ZONE,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(date);
+
+  const get = (type: string) =>
+    parts.find((part) => part.type === type)?.value ?? '';
+
+  const day = Number(get('day'));
+  const month = Number(get('month'));
+  const year = Number(get('year'));
+  const hour = Number(get('hour'));
+  const minute = Number(get('minute'));
+  const second = Number(get('second'));
+
+  const malaysiaDate = new Date(
+    Date.UTC(
+      year,
+      month - 1,
+      day,
+      hour,
+      minute,
+      second
+    )
+  );
+
+  return {
+    day,
+    month,
+    year,
+    hour,
+    minute,
+    second,
+    weekday:
+      DAY_NAMES_MS[malaysiaDate.getUTCDay()],
+  };
+}
+
+function formatMalaysiaDate(
+  date = new Date()
+) {
+  const parts =
+    getMalaysiaDateParts(date);
+
+  return `${parts.weekday}, ${parts.day} ${MONTH_NAMES_MS[parts.month - 1]} ${parts.year}`;
+}
+
+function formatMalaysiaTime(
+  date = new Date()
+) {
+  const parts =
+    getMalaysiaDateParts(date);
+
+  return `${String(parts.hour).padStart(2, '0')}:${String(parts.minute).padStart(2, '0')}:${String(parts.second).padStart(2, '0')}`;
+}
+
 // --- Login Component ---
 
 const LoginModal = ({ 
