@@ -742,13 +742,19 @@ if (daysLeft < 0) {
 
 const AdminView = ({ data, onRefresh }: { data: any, onRefresh: () => void }) => {
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState<Role>('Staff');
-  const [password] = useState('password');
+const [position, setPosition] = useState('');
+const [email, setEmail] = useState('');
+const [role, setRole] = useState<Role>('Staff');
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    await api.createUser({ name, email, role, password });
+    await api.createUser({
+  name,
+  position,
+  email,
+  role,
+  password
+});
     toast.success('Pekerja baharu berjaya didaftarkan.');
     setName('');
     setEmail('');
