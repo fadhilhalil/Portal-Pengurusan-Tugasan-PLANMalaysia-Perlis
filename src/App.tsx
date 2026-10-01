@@ -26,7 +26,8 @@ import {
   Globe,
   CheckCircle2,
   AlertCircle,
-  UserCheck
+  UserCheck,
+  UserCircle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '@/lib/api';
@@ -1004,9 +1005,10 @@ const StaffView = ({ user, data, onRefresh }: { user: User, data: any, onRefresh
                         }`}
                       >
                         <Avatar className="h-8 w-8 mr-3">
-                          <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${u.name}`} />
-                          <AvatarFallback>{u.name[0]}</AvatarFallback>
-                        </Avatar>
+  <AvatarFallback className="bg-slate-100 text-slate-500">
+    <UserCircle className="h-5 w-5" />
+  </AvatarFallback>
+</Avatar>
                         <div className="flex-1 min-w-0">
                           <p className={`text-[13px] font-semibold truncate ${projectStaffIds.includes(u.id) ? 'text-[#2563eb]' : 'text-[#0f172a]'}`}>
                             {u.name}
