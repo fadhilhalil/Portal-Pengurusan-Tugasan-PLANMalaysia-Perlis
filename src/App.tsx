@@ -470,5 +470,5 @@ export const api = {
     saveData(defaultData);
 
     return defaultData;
-  }export default App;
+  },
 };
