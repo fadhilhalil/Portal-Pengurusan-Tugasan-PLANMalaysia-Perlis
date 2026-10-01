@@ -459,7 +459,7 @@ export const api = {
     saveData(data);
 
     return true;
-  },
+  }
 
 
   /* -------------------------------------------------------
@@ -470,5 +470,5 @@ export const api = {
     saveData(defaultData);
 
     return defaultData;
-  },
+  }export default App;
 };
