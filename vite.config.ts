@@ -9,10 +9,15 @@ export default defineConfig(({ mode }) => {
   return {
     base: '/Portal-Pengurusan-Tugasan-PLANMalaysia-Perlis/',
 
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+    ],
 
     define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      'process.env.GEMINI_API_KEY': JSON.stringify(
+        env.GEMINI_API_KEY
+      ),
     },
 
     resolve: {
