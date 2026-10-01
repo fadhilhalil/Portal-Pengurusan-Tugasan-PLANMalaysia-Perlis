@@ -3,6 +3,7 @@ export type Role = "Admin" | "Staff" | "Pengarah";
 export interface User {
   id: string;
   name: string;
+  position?: string;
   email: string;
   role: Role;
   password?: string;
