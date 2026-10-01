@@ -781,7 +781,26 @@ const [role, setRole] = useState<Role>('Staff');
             <div className="space-y-2">
               <Label className="text-[12px] font-bold text-[#64748b] uppercase">Nama Penuh</Label>
               <Input className="border-[#e2e8f0]" value={name} onChange={(e) => setName(e.target.value)} required />
+              <TableCell className="text-[13px] text-[#64748b]">
+  {u.position || '-'}
+</TableCell>
             </div>
+            <div className="space-y-2">
+  <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+    Jawatan
+  </Label>
+
+  <Input
+    className="border-[#e2e8f0]"
+    value={position}
+    onChange={(e) => setPosition(e.target.value)}
+    placeholder="Contoh: Pegawai Perancang"
+    required
+  />
+</div>
+            <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">
+  Jawatan
+</TableHead>
             <div className="space-y-2">
               <Label className="text-[12px] font-bold text-[#64748b] uppercase">Emel</Label>
               <Input className="border-[#e2e8f0]" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
