@@ -1650,6 +1650,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg'>('md');
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const fetchData = async () => {
     const res = await api.getData();
@@ -1659,6 +1660,16 @@ export default function App() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+  const timer = window.setInterval(() => {
+    setCurrentTime(new Date());
+  }, 1000);
+
+  return () => {
+    window.clearInterval(timer);
+  };
+}, []);
 
   if (!data) {
     return (
