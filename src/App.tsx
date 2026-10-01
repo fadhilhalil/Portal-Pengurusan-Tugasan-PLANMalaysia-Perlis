@@ -290,9 +290,9 @@ const PortalHome = ({
         <span className="bg-amber-500 text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded shrink-0">
           Pengumuman Portal
         </span>
-        <p className="truncate font-medium flex-1">
-          📢 Peringatan: Sila pastikan semua kemajuan Tugasan Jabatan dikemaskini sebelum 15 Ogos 2026.
-        </p>
+       <p className="truncate font-medium flex-1">
+  📢 Sila pastikan semua kemajuan tugasan jabatan dikemaskini dari semasa ke semasa.
+</p>
         <Badge variant="outline" className="border-amber-300 text-amber-800 text-[10px] hidden md:inline-flex shrink-0">
           Jabatan Perancangan Bandar dan Desa
         </Badge>
