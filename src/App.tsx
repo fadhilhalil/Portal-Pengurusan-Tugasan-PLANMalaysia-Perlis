@@ -1,474 +1,182 @@
-import type {
-  User,
-  Project,
-  Task,
-  Notification,
-  Role,
-  ProjectStatus,
-} from "../types";
+/**
+ * ========================================================================
+ * SKRIP JAVASCRIPT APLIKASI (app.js)
+ * JABATAN PERANCANGAN BANDAR DAN DESA NEGERI PERLIS (PLANMalaysia @ Perlis)
+ * ========================================================================
+ */
 
-const STORAGE_KEY = "planmalaysia_portal_data";
+document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
 
-interface PortalData {
-  users: User[];
-  projects: Project[];
-  tasks: Task[];
-  notifications: Notification[];
-}
+    // 1. TOGOL MENU SISI (SIDEBAR MOBILE)
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarNav = document.getElementById('sidebarNav');
+    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
 
-/* =========================================================
-   DATA DEMO ASAL
-   ========================================================= */
+    if (sidebarToggle && sidebarNav) {
+        sidebarToggle.addEventListener('click', function () {
+            sidebarNav.classList.toggle('show');
+        });
+    }
 
-const defaultData: PortalData = {
-  users: [
-    {
-      id: "admin-001",
-      name: "Administrator",
-      email: "admin@planmalaysia.gov.my",
-      role: "Admin",
-      password: "admin123",
-    },
-    {
-      id: "staff-001",
-      name: "Unit Bank Data",
-      email: "bankdata@planmalaysia.gov.my",
-      role: "Staff",
-      password: "staff123",
-    },
-    {
-      id: "pengarah-001",
-      name: "Pengarah PLANMalaysia Perlis",
-      email: "pengarah@planmalaysia.gov.my",
-      role: "Pengarah",
-      password: "pengarah123",
-    },
-  ],
+    if (sidebarCloseBtn && sidebarNav) {
+        sidebarCloseBtn.addEventListener('click', function () {
+            sidebarNav.classList.remove('show');
+        });
+    }
 
-  projects: [
-    {
-      id: "project-001",
-      name: "Pengurusan Data Perancangan Negeri Perlis",
-      description:
-        "Pengurusan dan pengemaskinian data perancangan bandar dan desa Negeri Perlis.",
-      staffIds: ["staff-001"],
-      createdAt: "2026-09-01T00:00:00.000Z",
-      endDate: "2026-12-31T00:00:00.000Z",
-      status: "Dalam Proses",
-    },
-  ],
+    // 2. TOGOL LIHAT KATA LALUAN (LOGIN PAGE)
+    const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+    const passwordInput = document.getElementById('password');
+    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
 
-  tasks: [
-    {
-      id: "task-001",
-      projectId: "project-001",
-      title: "Kemaskini Data Perancangan Negeri Perlis",
-      description:
-        "Mengemaskini maklumat data perancangan bandar dan desa.",
-      assignedTo: "staff-001",
-      status: "In Progress",
-      startDate: "2026-09-30T00:00:00.000Z",
-      deadline: "2026-10-15T00:00:00.000Z",
-      createdAt: "2026-09-30T00:00:00.000Z",
-    },
-    {
-      id: "task-002",
-      projectId: "project-001",
-      title: "Penyediaan Laporan GIS",
-      description:
-        "Menyediakan laporan berkaitan data geospatial.",
-      assignedTo: "staff-001",
-      status: "Pending",
-      startDate: "2026-09-30T00:00:00.000Z",
-      deadline: "2026-10-20T00:00:00.000Z",
-      createdAt: "2026-09-30T00:00:00.000Z",
-    },
-    {
-      id: "task-003",
-      projectId: "project-001",
-      title: "Semakan Sistem Portal",
-      description:
-        "Semakan fungsi dan paparan portal pengurusan tugasan.",
-      assignedTo: "staff-001",
-      status: "Completed",
-      startDate: "2026-09-25T00:00:00.000Z",
-      deadline: "2026-09-30T00:00:00.000Z",
-      createdAt: "2026-09-25T00:00:00.000Z",
-    },
-  ],
-
-  notifications: [],
-};
-
-
-/* =========================================================
-   BACA DATA
-   ========================================================= */
-
-function getData(): PortalData {
-  if (typeof window === "undefined") {
-    return defaultData;
-  }
-
-  const stored = localStorage.getItem(STORAGE_KEY);
-
-  if (!stored) {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(defaultData)
-    );
-
-    return defaultData;
-  }
-
-  try {
-    const parsed = JSON.parse(stored);
-
-    return {
-      users: Array.isArray(parsed.users)
-        ? parsed.users
-        : defaultData.users,
-
-      projects: Array.isArray(parsed.projects)
-        ? parsed.projects
-        : defaultData.projects,
-
-      tasks: Array.isArray(parsed.tasks)
-        ? parsed.tasks
-        : defaultData.tasks,
-
-      notifications: Array.isArray(parsed.notifications)
-        ? parsed.notifications
-        : defaultData.notifications,
-    };
-  } catch {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(defaultData)
-    );
-
-    return defaultData;
-  }
-}
-
-
-/* =========================================================
-   SIMPAN DATA
-   ========================================================= */
-
-function saveData(data: PortalData) {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(data)
-    );
-  }
-}
-
-
-/* =========================================================
-   API
-   ========================================================= */
-
-export const api = {
-
-  /* -------------------------------------------------------
-     GET SEMUA DATA
-     ------------------------------------------------------- */
-
-  async getData() {
-    return getData();
-  },
-
-
-  /* -------------------------------------------------------
-     USER
-     ------------------------------------------------------- */
-
-  async createUser(
-    user: Omit<User, "id">
-  ) {
-    const data = getData();
-
-    const newUser: User = {
-      ...user,
-      id: `user-${Date.now()}`,
-    };
-
-    data.users = [
-      ...data.users,
-      newUser,
-    ];
-
-    saveData(data);
-
-    return newUser;
-  },
-
-
-  async updateUser(
-    id: string,
-    updates: Partial<User>
-  ) {
-    const data = getData();
-
-    data.users = data.users.map((user) =>
-      user.id === id
-        ? { ...user, ...updates }
-        : user
-    );
-
-    saveData(data);
-
-    return data.users.find(
-      (user) => user.id === id
-    );
-  },
-
-
-  async deleteUser(id: string) {
-    const data = getData();
-
-    /* Buang user */
-    data.users = data.users.filter(
-      (user) => user.id !== id
-    );
-
-    /* Buang user daripada projek */
-    data.projects = data.projects.map(
-      (project) => ({
-        ...project,
-        staffIds: project.staffIds.filter(
-          (staffId) => staffId !== id
-        ),
-      })
-    );
-
-    /* Buang sub-tugasan user */
-    data.tasks = data.tasks.filter(
-      (task) => task.assignedTo !== id
-    );
-
-    /* Buang notification user */
-    data.notifications = data.notifications.filter(
-      (notification) => notification.userId !== id
-    );
-
-    saveData(data);
-
-    return true;
-  },
-
-
-  /* -------------------------------------------------------
-     PROJECT / TUGASAN UTAMA
-     ------------------------------------------------------- */
-
-  async createProject(
-    project: Omit<Project, "id">
-  ) {
-    const data = getData();
-
-    const newProject: Project = {
-      ...project,
-      id: `project-${Date.now()}`,
-    };
-
-    data.projects = [
-      ...data.projects,
-      newProject,
-    ];
-
-    saveData(data);
-
-    return newProject;
-  },
-
-
-  async updateProject(
-    id: string,
-    updates: Partial<Project>
-  ) {
-    const data = getData();
-
-    data.projects = data.projects.map(
-      (project) =>
-        project.id === id
-          ? {
-              ...project,
-              ...updates,
+    if (togglePasswordBtn && passwordInput) {
+        togglePasswordBtn.addEventListener('click', function () {
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            if (togglePasswordIcon) {
+                togglePasswordIcon.classList.toggle('bi-eye-fill', !isPassword);
+                togglePasswordIcon.classList.toggle('bi-eye-slash-fill', isPassword);
             }
-          : project
-    );
+        });
+    }
 
-    saveData(data);
-
-    return data.projects.find(
-      (project) => project.id === id
-    );
-  },
-
-
-  async deleteProject(id: string) {
-    const data = getData();
-
-    /* Buang projek */
-    data.projects = data.projects.filter(
-      (project) => project.id !== id
-    );
-
-    /* Buang semua sub-tugasan berkaitan */
-    data.tasks = data.tasks.filter(
-      (task) => task.projectId !== id
-    );
-
-    saveData(data);
-
-    return true;
-  },
-
-
-  /* -------------------------------------------------------
-     TASK / SUB-TUGASAN
-     ------------------------------------------------------- */
-
-  async createTask(
-    task: Omit<
-      Task,
-      "id" |
-      "createdAt" |
-      "status"
-    >
-  ) {
-    const data = getData();
-
-    const newTask: Task = {
-      ...task,
-      id: `task-${Date.now()}`,
-      status: "Pending",
-      createdAt: new Date().toISOString(),
-    };
-
-    data.tasks = [
-      ...data.tasks,
-      newTask,
-    ];
-
-    saveData(data);
-
-    return newTask;
-  },
-
-
-  async updateTask(
-    id: string,
-    updates: Partial<Task>
-  ) {
-    const data = getData();
-
-    data.tasks = data.tasks.map(
-      (task) =>
-        task.id === id
-          ? {
-              ...task,
-              ...updates,
+    // 3. BUTANG CEPAT PENGISIAN AKAUN DEMO (LOGIN TESTING)
+    const demoBtns = document.querySelectorAll('.demo-fill-btn');
+    demoBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const emailInput = document.getElementById('email');
+            const passInput = document.getElementById('password');
+            if (emailInput && passInput) {
+                emailInput.value = this.getAttribute('data-email');
+                passInput.value = this.getAttribute('data-pass');
+                // Beri efek highlight
+                emailInput.focus();
             }
-          : task
-    );
+        });
+    });
 
-    saveData(data);
+    // 4. KEMASKINI MODAL PROJEK (POPULATE FORM)
+    const editProjectBtns = document.querySelectorAll('.btn-edit-project');
+    const editProjectModalEl = document.getElementById('editProjectModal');
+    if (editProjectBtns.length && editProjectModalEl) {
+        const editModal = new bootstrap.Modal(editProjectModalEl);
+        editProjectBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const data = JSON.parse(this.getAttribute('data-project'));
+                document.getElementById('edit_project_id').value = data.id;
+                document.getElementById('edit_code').value = data.code;
+                document.getElementById('edit_title').value = data.title;
+                document.getElementById('edit_category').value = data.category;
+                document.getElementById('edit_lead_user_id').value = data.lead_user_id || '';
+                document.getElementById('edit_description').value = data.description || '';
+                document.getElementById('edit_start_date').value = data.start_date || '';
+                document.getElementById('edit_end_date').value = data.end_date || '';
+                document.getElementById('edit_budget').value = data.budget || '';
+                document.getElementById('edit_status').value = data.status;
+                document.getElementById('edit_progress').value = data.progress || 0;
+                editModal.show();
+            });
+        });
+    }
 
-    return data.tasks.find(
-      (task) => task.id === id
-    );
-  },
+    // 5. PENGESAHAN PADAM PROJEK
+    const deleteProjectBtns = document.querySelectorAll('.btn-delete-project');
+    const deleteProjectModalEl = document.getElementById('deleteProjectModal');
+    if (deleteProjectBtns.length && deleteProjectModalEl) {
+        const delModal = new bootstrap.Modal(deleteProjectModalEl);
+        deleteProjectBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const title = this.getAttribute('data-title');
+                document.getElementById('delete_project_id').value = id;
+                document.getElementById('delete_project_title').textContent = title;
+                delModal.show();
+            });
+        });
+    }
 
+    // 6. KEMASKINI MODAL TUGASAN
+    const editTaskBtns = document.querySelectorAll('.btn-edit-task');
+    const editTaskModalEl = document.getElementById('editTaskModal');
+    if (editTaskBtns.length && editTaskModalEl) {
+        const editTaskModal = new bootstrap.Modal(editTaskModalEl);
+        editTaskBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const task = JSON.parse(this.getAttribute('data-task'));
+                document.getElementById('edit_task_id').value = task.id;
+                document.getElementById('edit_task_title').value = task.title;
+                document.getElementById('edit_task_project_id').value = task.project_id || '';
+                document.getElementById('edit_task_assigned_user_id').value = task.assigned_user_id || '';
+                document.getElementById('edit_task_description').value = task.description || '';
+                document.getElementById('edit_task_priority').value = task.priority;
+                document.getElementById('edit_task_status').value = task.status;
+                document.getElementById('edit_task_due_date').value = task.due_date || '';
+                editTaskModal.show();
+            });
+        });
+    }
 
-  async deleteTask(id: string) {
-    const data = getData();
+    // 7. PENGESAHAN PADAM TUGASAN
+    const deleteTaskBtns = document.querySelectorAll('.btn-delete-task');
+    const deleteTaskModalEl = document.getElementById('deleteTaskModal');
+    if (deleteTaskBtns.length && deleteTaskModalEl) {
+        const delTaskModal = new bootstrap.Modal(deleteTaskModalEl);
+        deleteTaskBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const title = this.getAttribute('data-title');
+                document.getElementById('delete_task_id').value = id;
+                document.getElementById('delete_task_title').textContent = title;
+                delTaskModal.show();
+            });
+        });
+    }
 
-    data.tasks = data.tasks.filter(
-      (task) => task.id !== id
-    );
+    // 8. KEMASKINI MODAL KAKITANGAN (USERS)
+    const editUserBtns = document.querySelectorAll('.btn-edit-user');
+    const editUserModalEl = document.getElementById('editUserModal');
+    if (editUserBtns.length && editUserModalEl) {
+        const editUserModal = new bootstrap.Modal(editUserModalEl);
+        editUserBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const u = JSON.parse(this.getAttribute('data-user'));
+                document.getElementById('edit_user_id').value = u.id;
+                document.getElementById('edit_user_name').value = u.name;
+                document.getElementById('edit_user_email').value = u.email;
+                document.getElementById('edit_user_role').value = u.role;
+                document.getElementById('edit_user_unit').value = u.unit || '';
+                document.getElementById('edit_user_phone').value = u.phone || '';
+                document.getElementById('edit_user_status').value = u.status || 'Aktif';
+                editUserModal.show();
+            });
+        });
+    }
 
-    saveData(data);
+    // 9. PENGESAHAN PADAM KAKITANGAN
+    const deleteUserBtns = document.querySelectorAll('.btn-delete-user');
+    const deleteUserModalEl = document.getElementById('deleteUserModal');
+    if (deleteUserBtns.length && deleteUserModalEl) {
+        const delUserModal = new bootstrap.Modal(deleteUserModalEl);
+        deleteUserBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                document.getElementById('delete_user_id').value = id;
+                document.getElementById('delete_user_name_text').textContent = name;
+                delUserModal.show();
+            });
+        });
+    }
 
-    return true;
-  },
-
-
-  /* -------------------------------------------------------
-     NOTIFICATION
-     ------------------------------------------------------- */
-
-  async createNotification(
-    notification: Omit<Notification, "id" | "createdAt">
-  ) {
-    const data = getData();
-
-    const newNotification: Notification = {
-      ...notification,
-      id: `notification-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-
-    data.notifications = [
-      ...data.notifications,
-      newNotification,
-    ];
-
-    saveData(data);
-
-    return newNotification;
-  },
-
-
-  async markNotificationAsRead(
-    id: string
-  ) {
-    const data = getData();
-
-    data.notifications =
-      data.notifications.map(
-        (notification) =>
-          notification.id === id
-            ? {
-                ...notification,
-                read: true,
-              }
-            : notification
-      );
-
-    saveData(data);
-
-    return true;
-  },
-
-
-  async deleteNotification(
-    id: string
-  ) {
-    const data = getData();
-
-    data.notifications =
-      data.notifications.filter(
-        (notification) =>
-          notification.id !== id
-      );
-
-    saveData(data);
-
-    return true;
-  }
-
-
-  /* -------------------------------------------------------
-     RESET DATA DEMO
-     ------------------------------------------------------- */
-
-  async resetData() {
-    saveData(defaultData);
-
-    return defaultData;
-  },
-};
+    // 10. AUTO-HIDE NOTIFIKASI FLASH SELEPAS 6 SAAT
+    const alerts = document.querySelectorAll('.alert-dismissible');
+    alerts.forEach(function (alert) {
+        setTimeout(function () {
+            const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+            if (bsAlert) {
+                bsAlert.close();
+            }
+        }, 6000);
+    });
+});
