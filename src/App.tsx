@@ -752,29 +752,19 @@ const AdminView = ({
   const [role, setRole] = useState<Role>('Staff');
 
   const handleAddUser = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!name.trim() || !position.trim() || !email.trim()) {
-    toast.error('Sila lengkapkan semua maklumat pekerja.');
-    return;
-  }
+    if (!name.trim() || !position.trim() || !email.trim()) {
+      toast.error('Sila lengkapkan semua maklumat pekerja.');
+      return;
+    }
 
-  await api.createUser({
-    name: name.trim(),
-    position: position.trim(),
-    email: email.trim(),
-    role,
-  });
-
-  toast.success('Pekerja baharu berjaya didaftarkan.');
-
-  setName('');
-  setPosition('');
-  setEmail('');
-  setRole('Staff');
-
-  onRefresh();
-};
+    await api.createUser({
+      name: name.trim(),
+      position: position.trim(),
+      email: email.trim(),
+      role,
+    });
 
     toast.success('Pekerja baharu berjaya didaftarkan.');
 
@@ -787,7 +777,11 @@ const AdminView = ({
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (window.confirm('Adakah anda pasti mahu memadam pekerja ini?')) {
+    if (
+      window.confirm(
+        'Adakah anda pasti mahu memadam pekerja ini?'
+      )
+    ) {
       await api.deleteUser(userId);
       toast.success('Pekerja berjaya dipadam.');
       onRefresh();
@@ -796,7 +790,6 @@ const AdminView = ({
 
   return (
     <div className="space-y-6">
-
       {/* Daftar Pekerja */}
       <Card className="border-[#e2e8f0] shadow-sm rounded-xl">
         <CardHeader className="px-6 py-5 border-b border-[#e2e8f0]">
@@ -810,12 +803,10 @@ const AdminView = ({
         </CardHeader>
 
         <CardContent className="p-6">
-
           <form
             onSubmit={handleAddUser}
             className="grid grid-cols-1 md:grid-cols-2 gap-4"
           >
-
             {/* Nama */}
             <div className="space-y-2">
               <Label className="text-[12px] font-bold text-[#64748b] uppercase">
@@ -870,10 +861,10 @@ const AdminView = ({
 
               <Select
                 value={role}
-                onValueChange={(v: Role) => setRole(v)}
+                onValueChange={(value: Role) => setRole(value)}
               >
                 <SelectTrigger className="border-[#e2e8f0]">
-                  <SelectValue />
+                  <SelectValue placeholder="Pilih peranan" />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -893,7 +884,7 @@ const AdminView = ({
             </div>
 
             {/* Butang */}
-            <div className="md:col-span-2 flex justify-end pt-2">
+            <div className="md:col-span-2 flex justify-end">
               <Button
                 type="submit"
                 className="bg-[#2563eb] hover:bg-[#1d4ed8]"
@@ -901,15 +892,12 @@ const AdminView = ({
                 Daftar Pekerja
               </Button>
             </div>
-
           </form>
-
         </CardContent>
       </Card>
 
       {/* Senarai Pekerja */}
       <Card className="border-[#e2e8f0] shadow-sm rounded-xl overflow-hidden">
-
         <CardHeader className="px-6 py-5 border-b border-[#e2e8f0]">
           <CardTitle className="text-lg font-bold">
             Senarai Pekerja
@@ -917,12 +905,9 @@ const AdminView = ({
         </CardHeader>
 
         <CardContent className="p-0">
-
           <Table>
-
             <TableHeader className="bg-[#f8fafc]">
-              <TableRow className="hover:bg-transparent border-b border-[#e2e8f0]">
-
+              <TableRow className="border-b border-[#e2e8f0]">
                 <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6">
                   Nama
                 </TableHead>
@@ -942,27 +927,22 @@ const AdminView = ({
                 <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6 text-right">
                   Tindakan
                 </TableHead>
-
               </TableRow>
             </TableHeader>
 
             <TableBody>
-
               {data.users.map((u: any) => (
                 <TableRow
                   key={u.id}
                   className="border-b border-[#e2e8f0] hover:bg-slate-50/50"
                 >
-
                   <TableCell className="px-6 py-4 font-bold text-[13px] text-[#0f172a]">
                     {u.name}
                   </TableCell>
+
                   <TableCell className="text-[13px] text-[#64748b]">
                     {u.position || '-'}
                   </TableCell>
-                  <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">
-                    Jawatan
-                  </TableHead>
 
                   <TableCell className="text-[13px] text-[#64748b]">
                     {u.email}
@@ -987,7 +967,6 @@ const AdminView = ({
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>
-
                 </TableRow>
               ))}
 
@@ -1001,17 +980,15 @@ const AdminView = ({
                   </TableCell>
                 </TableRow>
               )}
-
             </TableBody>
-
           </Table>
-
         </CardContent>
       </Card>
-
     </div>
   );
 };
+
+// --- Staff View ---
 // --- Staff View ---
 
 const StaffView = ({ user, data, onRefresh }: { user: User, data: any, onRefresh: () => void }) => {
