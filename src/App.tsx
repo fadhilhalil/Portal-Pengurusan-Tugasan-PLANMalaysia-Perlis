@@ -752,19 +752,29 @@ const AdminView = ({
   const [role, setRole] = useState<Role>('Staff');
 
   const handleAddUser = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!name.trim() || !position.trim() || !email.trim()) {
-      toast.error('Sila lengkapkan semua maklumat pekerja.');
-      return;
-    }
+  if (!name.trim() || !position.trim() || !email.trim()) {
+    toast.error('Sila lengkapkan semua maklumat pekerja.');
+    return;
+  }
 
-    await api.createUser({
-      name: name.trim(),
-      position: position.trim(),
-      email: email.trim(),
-      role,
-    });
+  await api.createUser({
+    name: name.trim(),
+    position: position.trim(),
+    email: email.trim(),
+    role,
+  });
+
+  toast.success('Pekerja baharu berjaya didaftarkan.');
+
+  setName('');
+  setPosition('');
+  setEmail('');
+  setRole('Staff');
+
+  onRefresh();
+};
 
     toast.success('Pekerja baharu berjaya didaftarkan.');
 
@@ -947,10 +957,12 @@ const AdminView = ({
                   <TableCell className="px-6 py-4 font-bold text-[13px] text-[#0f172a]">
                     {u.name}
                   </TableCell>
-
                   <TableCell className="text-[13px] text-[#64748b]">
                     {u.position || '-'}
                   </TableCell>
+                  <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">
+                    Jawatan
+                  </TableHead>
 
                   <TableCell className="text-[13px] text-[#64748b]">
                     {u.email}
