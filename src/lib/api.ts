@@ -16,27 +16,39 @@ export interface PortalData {
 
 const defaultData: PortalData = {
   users: [
-    {
-      id: "admin-001",
-      name: "Administrator",
-      email: "admin@planmalaysia.gov.my",
-      role: "Admin",
-      password: "admin123",
-    },
-    {
-      id: "staff-001",
-      name: "Unit Bank Data",
-      email: "bankdata@planmalaysia.gov.my",
-      role: "Staff",
-      password: "staff123",
-    },
-    {
-      id: "pengarah-001",
-      name: "Pengarah PLANMalaysia Perlis",
-      email: "pengarah@planmalaysia.gov.my",
-      role: "Pengarah",
-      password: "pengarah123",
-    },
+   async createUser(user: Omit<User, "id">) {
+  const data = getData();
+
+  const loginId = user.loginId?.trim();
+
+  if (!loginId) {
+    throw new Error("ID pengguna diperlukan.");
+  }
+
+  const existingUser = data.users.find(
+    (existing) =>
+      existing.loginId?.toLowerCase() === loginId.toLowerCase()
+  );
+
+  if (existingUser) {
+    throw new Error("ID pengguna telah digunakan.");
+  }
+
+  const newUser: User = {
+    ...user,
+    loginId,
+    id: `user-${Date.now()}`,
+  };
+
+  data.users = [
+    ...data.users,
+    newUser,
+  ];
+
+  saveData(data);
+
+  return newUser;
+},
   ],
 
   projects: [
