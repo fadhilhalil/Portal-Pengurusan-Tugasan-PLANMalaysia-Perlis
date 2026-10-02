@@ -176,16 +176,22 @@ const [password, setPassword] = useState('');
  
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const user = users.find((u) => u.email === email && u.password === password);
-    if (user) {
-      onLogin(user);
-      onClose();
-      toast.success(`Selamat datang, ${user.name}!`);
-    } else {
-      toast.error('ID pengguna atau kata laluan salah.');
-    }
-  };
+  e.preventDefault();
+
+  const user = users.find(
+    (u) =>
+      u.loginId?.toLowerCase() === loginId.trim().toLowerCase() &&
+      u.password === password
+  );
+
+  if (user) {
+    onLogin(user);
+    onClose();
+    toast.success(`Selamat datang, ${user.name}!`);
+  } else {
+    toast.error('ID pengguna atau kata laluan salah.');
+  }
+};;
 
   const quickLogin = (selectedUser: User) => {
     onLogin(selectedUser);
@@ -215,39 +221,51 @@ const [password, setPassword] = useState('');
   ID Pengguna
 </Label>
 
-<Input
-  id="loginId"
-  type="text"
-  placeholder="Masukkan ID pengguna"
-  className="border-[#e2e8f0]"
-  value={loginId}
-  onChange={(e) => setLoginId(e.target.value)}
-  required
-/>
-            <Input 
-              id="email" 
-              type="email" 
-              placeholder="contoh: admin@example.com" 
-              className="border-[#e2e8f0]" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-[11px] font-bold text-[#64748b] uppercase">Kata Laluan</Label>
-            <Input 
-              id="password" 
-              type="password" 
-              className="border-[#e2e8f0]" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-            />
-          </div>
-          <Button type="submit" className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold h-10">
-            Log Masuk
-          </Button>
+<div className="space-y-4 py-2">
+  <div className="space-y-2">
+    <Label
+      htmlFor="loginId"
+      className="text-[11px] font-bold text-[#64748b] uppercase"
+    >
+      ID Pengguna
+    </Label>
+
+    <Input
+      id="loginId"
+      type="text"
+      placeholder="Masukkan ID pengguna"
+      className="border-[#e2e8f0]"
+      value={loginId}
+      onChange={(e) => setLoginId(e.target.value)}
+      required
+    />
+  </div>
+
+  <div className="space-y-2">
+    <Label
+      htmlFor="password"
+      className="text-[11px] font-bold text-[#64748b] uppercase"
+    >
+      Kata Laluan
+    </Label>
+
+    <Input
+      id="password"
+      type="password"
+      className="border-[#e2e8f0]"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      required
+    />
+  </div>
+
+  <Button
+    type="submit"
+    className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold h-10"
+  >
+    Log Masuk
+  </Button>
+</div>
         </form>
 
         <div className="pt-3 border-t border-[#e2e8f0]">
