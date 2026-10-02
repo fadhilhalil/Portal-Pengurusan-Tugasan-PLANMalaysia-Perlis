@@ -171,8 +171,9 @@ const LoginModal = ({
   onLogin: (user: User) => void;
   users: User[];
 }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const [loginId, setLoginId] = useState('');
+const [password, setPassword] = useState('');
+ 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,7 +183,7 @@ const LoginModal = ({
       onClose();
       toast.success(`Selamat datang, ${user.name}!`);
     } else {
-      toast.error('Emel atau kata laluan salah.');
+      toast.error('ID pengguna atau kata laluan salah.');
     }
   };
 
@@ -207,7 +208,22 @@ const LoginModal = ({
 
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-[11px] font-bold text-[#64748b] uppercase">Emel</Label>
+            <Label
+  htmlFor="loginId"
+  className="text-[11px] font-bold text-[#64748b] uppercase"
+>
+  ID Pengguna
+</Label>
+
+<Input
+  id="loginId"
+  type="text"
+  placeholder="Masukkan ID pengguna"
+  className="border-[#e2e8f0]"
+  value={loginId}
+  onChange={(e) => setLoginId(e.target.value)}
+  required
+/>
             <Input 
               id="email" 
               type="email" 
