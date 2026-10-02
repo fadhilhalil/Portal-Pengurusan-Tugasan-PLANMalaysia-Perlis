@@ -159,117 +159,132 @@ function formatMalaysiaTime(
 }
 
 // --- Login Component ---
-
-const LoginModal = ({ 
-  isOpen, 
-  onClose, 
-  onLogin, 
-  users 
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
+const LoginModal = ({
+  isOpen,
+  onClose,
+  onLogin,
+  users,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
   onLogin: (user: User) => void;
   users: User[];
 }) => {
-const [loginId, setLoginId] = useState('');
-const [password, setPassword] = useState('');
- 
+  const [loginId, setLoginId] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const user = users.find(
-    (u) =>
-      u.loginId?.toLowerCase() === loginId.trim().toLowerCase() &&
-      u.password === password
-  );
+    const user = users.find(
+      (u) =>
+        u.loginId?.toLowerCase() === loginId.trim().toLowerCase() &&
+        u.password === password
+    );
 
-  if (user) {
-    onLogin(user);
-    onClose();
-    toast.success(`Selamat datang, ${user.name}!`);
-  } else {
-    toast.error('ID pengguna atau kata laluan salah.');
-  }
-};;
+    if (user) {
+      onLogin(user);
+      onClose();
+      toast.success(`Selamat datang, ${user.name}!`);
+    } else {
+      toast.error('ID pengguna atau kata laluan salah.');
+    }
+  };
 
   const quickLogin = (selectedUser: User) => {
     onLogin(selectedUser);
     onClose();
-    toast.success(`Selamat datang, ${selectedUser.name}! (${selectedUser.role})`);
+    toast.success(
+      `Selamat datang, ${selectedUser.name}! (${selectedUser.role})`
+    );
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
       <DialogContent className="sm:max-w-[450px]">
         <DialogHeader className="text-center">
           <div className="flex justify-center items-center mb-3">
-            <img src={logoPMPerlis} alt="Logo PLANMalaysia Perlis" className="h-24 sm:h-28 w-auto object-contain drop-shadow-sm" />
+            <img
+              src={logoPMPerlis}
+              alt="Logo PLANMalaysia Perlis"
+              className="h-24 sm:h-28 w-auto object-contain drop-shadow-sm"
+            />
           </div>
-          <DialogTitle className="text-xl font-bold text-[#0f172a]">Log Masuk Staf Portal</DialogTitle>
+
+          <DialogTitle className="text-xl font-bold text-[#0f172a]">
+            Log Masuk Staf Portal
+          </DialogTitle>
+
           <DialogDescription className="text-[12px] text-[#64748b]">
-            Jabatan Perancangan Bandar dan Desa Negeri Perlis (PLANMalaysia Perlis)
+            Jabatan Perancangan Bandar dan Desa Negeri Perlis
+            (PLANMalaysia Perlis)
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 py-2"
+        >
+          {/* ID Pengguna */}
           <div className="space-y-2">
             <Label
-  htmlFor="loginId"
-  className="text-[11px] font-bold text-[#64748b] uppercase"
->
-  ID Pengguna
-</Label>
+              htmlFor="loginId"
+              className="text-[11px] font-bold text-[#64748b] uppercase"
+            >
+              ID Pengguna
+            </Label>
 
-<div className="space-y-4 py-2">
-  <div className="space-y-2">
-    <Label
-      htmlFor="loginId"
-      className="text-[11px] font-bold text-[#64748b] uppercase"
-    >
-      ID Pengguna
-    </Label>
+            <Input
+              id="loginId"
+              type="text"
+              placeholder="Masukkan ID pengguna"
+              className="border-[#e2e8f0]"
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
+              required
+            />
+          </div>
 
-    <Input
-      id="loginId"
-      type="text"
-      placeholder="Masukkan ID pengguna"
-      className="border-[#e2e8f0]"
-      value={loginId}
-      onChange={(e) => setLoginId(e.target.value)}
-      required
-    />
-  </div>
+          {/* Kata Laluan */}
+          <div className="space-y-2">
+            <Label
+              htmlFor="password"
+              className="text-[11px] font-bold text-[#64748b] uppercase"
+            >
+              Kata Laluan
+            </Label>
 
-  <div className="space-y-2">
-    <Label
-      htmlFor="password"
-      className="text-[11px] font-bold text-[#64748b] uppercase"
-    >
-      Kata Laluan
-    </Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Masukkan kata laluan"
+              className="border-[#e2e8f0]"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-    <Input
-      id="password"
-      type="password"
-      className="border-[#e2e8f0]"
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      required
-    />
-  </div>
-
-  <Button
-    type="submit"
-    className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold h-10"
-  >
-    Log Masuk
-  </Button>
-</div>
+          {/* Butang Log Masuk */}
+          <Button
+            type="submit"
+            className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold h-10"
+          >
+            Log Masuk
+          </Button>
         </form>
 
+        {/* Login Pantas */}
         <div className="pt-3 border-t border-[#e2e8f0]">
-          <p className="text-[11px] font-bold text-[#64748b] uppercase mb-2 text-center">Log Masuk Pantas (Akaun Demo):</p>
+          <p className="text-[11px] font-bold text-[#64748b] uppercase mb-2 text-center">
+            Log Masuk Pantas (Akaun Demo):
+          </p>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {users.map((u) => (
               <Button
@@ -280,8 +295,13 @@ const [password, setPassword] = useState('');
                 onClick={() => quickLogin(u)}
               >
                 <div className="truncate">
-                  <p className="font-bold text-[#0f172a] truncate">{u.name}</p>
-                  <p className="text-[10px] text-[#2563eb] uppercase font-semibold">{u.role}</p>
+                  <p className="font-bold text-[#0f172a] truncate">
+                    {u.name}
+                  </p>
+
+                  <p className="text-[10px] text-[#2563eb] uppercase font-semibold">
+                    {u.role}
+                  </p>
                 </div>
               </Button>
             ))}
@@ -291,6 +311,7 @@ const [password, setPassword] = useState('');
     </Dialog>
   );
 };
+
 
 // --- Portal Public Home Page ---
 
