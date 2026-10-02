@@ -53,6 +53,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
 import { format, differenceInDays, isBefore } from 'date-fns';
+import { UserCircle } from 'lucide-react';
 import { 
   BarChart, 
   Bar, 
@@ -558,10 +559,9 @@ const StaffDirectory = ({ users }: { users: User[] }) => {
             {users.map((u) => (
               <Card key={u.id} className="border-[#e2e8f0] shadow-none hover:shadow-md transition-all rounded-xl overflow-hidden">
                 <CardContent className="p-6 flex items-start space-x-4">
-                  <Avatar className="h-16 w-16 border-2 border-[#2563eb]/20 shrink-0">
-                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${u.name}`} />
-                    <AvatarFallback>{u.name[0]}</AvatarFallback>
-                  </Avatar>
+                 <div className="h-16 w-16 rounded-full bg-[#eff6ff] flex items-center justify-center shrink-0">
+                    <UserCircle className="h-10 w-10 text-[#2563eb]" />
+                  </div>
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center justify-between">
                       <p className="font-bold text-base text-[#0f172a] truncate">{u.name}</p>
