@@ -772,9 +772,6 @@ const [role, setRole] = useState<Role>('Staff');
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const handleAddUser = async (e: React.FormEvent) => {
-  e.preventDefault();
-
   if (
     !loginId.trim() ||
     !name.trim() ||
@@ -1005,55 +1002,48 @@ const [role, setRole] = useState<Role>('Staff');
             </TableHeader>
 
             <TableBody>
-              {data.users.map((u: any) => (
-              
-            
-                  <TableCell className="px-6 py-4 font-medium text-[13px] text-[#2563eb]">
-  {u.loginId || '-'}
-</TableCell>
-                  <TableCell className="px-6 py-4 font-bold text-[13px] text-[#0f172a]">
-                    {u.name}
-                  </TableCell>
+            {data.users.map((u: any) => (
+  <TableRow
+    key={u.id}
+    className="border-b border-[#e2e8f0] hover:bg-slate-50/50"
+  >
+    <TableCell className="px-6 py-4 font-medium text-[13px] text-[#2563eb]">
+      {u.loginId || '-'}
+    </TableCell>
 
-                  <TableCell className="text-[13px] text-[#64748b]">
-                    {u.position || '-'}
-                  </TableCell>
+    <TableCell className="px-6 py-4 font-bold text-[13px] text-[#0f172a]">
+      {u.name}
+    </TableCell>
 
-                  <TableCell className="text-[13px] text-[#64748b]">
-                    {u.email}
-                  </TableCell>
+    <TableCell className="text-[13px] text-[#64748b]">
+      {u.position || '-'}
+    </TableCell>
 
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className="text-[11px] uppercase bg-slate-100 font-bold text-[#2563eb] border-slate-200"
-                    >
-                      {u.role}
-                    </Badge>
-                  </TableCell>
+    <TableCell className="text-[13px] text-[#64748b]">
+      {u.email}
+    </TableCell>
 
-                  <TableCell className="px-6 text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-[#64748b] hover:text-[#ef4444]"
-                      onClick={() => handleDeleteUser(u.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+    <TableCell>
+      <Badge
+        variant="outline"
+        className="text-[11px] uppercase bg-slate-100 font-bold text-[#2563eb] border-slate-200"
+      >
+        {u.role}
+      </Badge>
+    </TableCell>
 
-              {data.users.length === 0 && (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center py-10 text-[#64748b]"
-                  >
-                    Tiada pekerja didaftarkan.
-                  </TableCell>
-                </TableRow>
+    <TableCell className="px-6 text-right">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 text-[#64748b] hover:text-[#ef4444]"
+        onClick={() => handleDeleteUser(u.id)}
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </TableCell>
+  </TableRow>
+))}
               )}
             </TableBody>
           </Table>
