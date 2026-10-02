@@ -762,35 +762,61 @@ const AdminView = ({
   data: any;
   onRefresh: () => void;
 }) => {
-  const [name, setName] = useState('');
-  const [position, setPosition] = useState('');
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState<Role>('Staff');
+  const [loginId, setLoginId] = useState('');
+const [name, setName] = useState('');
+const [position, setPosition] = useState('');
+const [email, setEmail] = useState('');
+const [password, setPassword] = useState('');
+const [role, setRole] = useState<Role>('Staff');
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim() || !position.trim() || !email.trim()) {
-      toast.error('Sila lengkapkan semua maklumat pekerja.');
-      return;
-    }
+    const handleAddUser = async (e: React.FormEvent) => {
+  e.preventDefault();
 
+  if (
+    !loginId.trim() ||
+    !name.trim() ||
+    !position.trim() ||
+    !email.trim() ||
+    !password.trim()
+  ) {
+    toast.error('Sila lengkapkan semua maklumat pekerja.');
+    return;
+  }
+
+  if (password.length < 6) {
+    toast.error('Kata laluan mestilah sekurang-kurangnya 6 aksara.');
+    return;
+  }
+
+  try {
     await api.createUser({
+      loginId: loginId.trim(),
       name: name.trim(),
       position: position.trim(),
       email: email.trim(),
+      password,
       role,
     });
 
     toast.success('Pekerja baharu berjaya didaftarkan.');
 
+    setLoginId('');
     setName('');
     setPosition('');
     setEmail('');
+    setPassword('');
     setRole('Staff');
 
     onRefresh();
-  };
+  } catch (error: any) {
+    toast.error(
+      error?.message || 'Gagal mendaftarkan pekerja.'
+    );
+  }
+};
 
   const handleDeleteUser = async (userId: string) => {
     if (
@@ -823,6 +849,20 @@ const AdminView = ({
             onSubmit={handleAddUser}
             className="grid grid-cols-1 md:grid-cols-2 gap-4"
           >
+            {/* ID Pengguna */}
+<div className="space-y-2">
+  <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+    ID Pengguna
+  </Label>
+
+  <Input
+    className="border-[#e2e8f0]"
+    value={loginId}
+    onChange={(e) => setLoginId(e.target.value)}
+    placeholder="Contoh: ahmad01"
+    required
+  />
+</div>
             {/* Nama */}
             <div className="space-y-2">
               <Label className="text-[12px] font-bold text-[#64748b] uppercase">
@@ -868,6 +908,21 @@ const AdminView = ({
                 required
               />
             </div>
+            {/* Kata Laluan */}
+<div className="space-y-2">
+  <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+    Kata Laluan
+  </Label>
+
+  <Input
+    type="password"
+    className="border-[#e2e8f0]"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    placeholder="Minimum 6 aksara"
+    required
+  />
+</div>
 
             {/* Peranan */}
             <div className="space-y-2">
@@ -924,6 +979,9 @@ const AdminView = ({
           <Table>
             <TableHeader className="bg-[#f8fafc]">
               <TableRow className="border-b border-[#e2e8f0]">
+               <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6">
+      ID Pengguna
+    </TableHead>
                 <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6">
                   Nama
                 </TableHead>
@@ -948,10 +1006,11 @@ const AdminView = ({
 
             <TableBody>
               {data.users.map((u: any) => (
-                <TableRow
-                  key={u.id}
-                  className="border-b border-[#e2e8f0] hover:bg-slate-50/50"
+              
                 >
+                  <TableCell className="px-6 py-4 font-medium text-[13px] text-[#2563eb]">
+  {u.loginId || '-'}
+</TableCell>
                   <TableCell className="px-6 py-4 font-bold text-[13px] text-[#0f172a]">
                     {u.name}
                   </TableCell>
@@ -989,7 +1048,7 @@ const AdminView = ({
               {data.users.length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="text-center py-10 text-[#64748b]"
                   >
                     Tiada pekerja didaftarkan.
