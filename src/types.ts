@@ -2,6 +2,7 @@ export type Role = "Admin" | "Staff" | "Pengarah";
 
 export interface User {
   id: string;
+  loginId?: string;
   name: string;
   position?: string;
   email: string;
