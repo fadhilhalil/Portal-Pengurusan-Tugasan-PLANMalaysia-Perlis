@@ -739,25 +739,40 @@ if (daysLeft < 0) {
 };
 
 // --- Admin Component ---
-
-const AdminView = ({ data, onRefresh }: { data: any, onRefresh: () => void }) => {
+const AdminView = ({
+  data,
+  onRefresh,
+}: {
+  data: any;
+  onRefresh: () => void;
+}) => {
   const [name, setName] = useState('');
-const [position, setPosition] = useState('');
-const [email, setEmail] = useState('');
-const [role, setRole] = useState<Role>('Staff');
+  const [position, setPosition] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState<Role>('Staff');
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!name.trim() || !position.trim() || !email.trim()) {
+      toast.error('Sila lengkapkan semua maklumat pekerja.');
+      return;
+    }
+
     await api.createUser({
-  name,
-  position,
-  email,
-  role,
-  password
-});
+      name: name.trim(),
+      position: position.trim(),
+      email: email.trim(),
+      role,
+    });
+
     toast.success('Pekerja baharu berjaya didaftarkan.');
+
     setName('');
+    setPosition('');
     setEmail('');
+    setRole('Staff');
+
     onRefresh();
   };
 
@@ -771,102 +786,220 @@ const [role, setRole] = useState<Role>('Staff');
 
   return (
     <div className="space-y-6">
+
+      {/* Daftar Pekerja */}
       <Card className="border-[#e2e8f0] shadow-sm rounded-xl">
         <CardHeader className="px-6 py-5 border-b border-[#e2e8f0]">
-          <CardTitle className="text-lg font-bold">Daftar Pekerja Baharu</CardTitle>
-          <CardDescription className="text-[#64748b]">Masukkan maklumat pekerja untuk didaftarkan ke dalam sistem.</CardDescription>
-        </CardHeader>
-        <CardContent className="p-6">
-          <form onSubmit={handleAddUser} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-            <div className="space-y-2">
-              <Label className="text-[12px] font-bold text-[#64748b] uppercase">Nama Penuh</Label>
-              <Input className="border-[#e2e8f0]" value={name} onChange={(e) => setName(e.target.value)} required />
-              <TableCell className="text-[13px] text-[#64748b]">
-  {u.position || '-'}
-</TableCell>
-            </div>
-            <div className="space-y-2">
-  <Label className="text-[12px] font-bold text-[#64748b] uppercase">
-    Jawatan
-  </Label>
+          <CardTitle className="text-lg font-bold">
+            Daftar Pekerja Baharu
+          </CardTitle>
 
-  <Input
-    className="border-[#e2e8f0]"
-    value={position}
-    onChange={(e) => setPosition(e.target.value)}
-    placeholder="Contoh: Pegawai Perancang"
-    required
-  />
-</div>
-            <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">
-  Jawatan
-</TableHead>
+          <CardDescription className="text-[#64748b]">
+            Masukkan maklumat pekerja untuk didaftarkan ke dalam sistem.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="p-6">
+
+          <form
+            onSubmit={handleAddUser}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+
+            {/* Nama */}
             <div className="space-y-2">
-              <Label className="text-[12px] font-bold text-[#64748b] uppercase">Emel</Label>
-              <Input className="border-[#e2e8f0]" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+                Nama Penuh
+              </Label>
+
+              <Input
+                className="border-[#e2e8f0]"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nama penuh pekerja"
+                required
+              />
             </div>
+
+            {/* Jawatan */}
             <div className="space-y-2">
-              <Label className="text-[12px] font-bold text-[#64748b] uppercase">Peranan</Label>
-              <Select value={role} onValueChange={(v: Role) => setRole(v)}>
+              <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+                Jawatan
+              </Label>
+
+              <Input
+                className="border-[#e2e8f0]"
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+                placeholder="Contoh: Pegawai Perancang"
+                required
+              />
+            </div>
+
+            {/* Emel */}
+            <div className="space-y-2">
+              <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+                Emel
+              </Label>
+
+              <Input
+                className="border-[#e2e8f0]"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="nama@planmalaysia.gov.my"
+                required
+              />
+            </div>
+
+            {/* Peranan */}
+            <div className="space-y-2">
+              <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+                Peranan
+              </Label>
+
+              <Select
+                value={role}
+                onValueChange={(v: Role) => setRole(v)}
+              >
                 <SelectTrigger className="border-[#e2e8f0]">
                   <SelectValue />
                 </SelectTrigger>
+
                 <SelectContent>
-                  <SelectItem value="Staff">Staff</SelectItem>
-                  <SelectItem value="Pengarah">Pengarah</SelectItem>
-                  <SelectItem value="Admin">Admin</SelectItem>
+                  <SelectItem value="Staff">
+                    Staff
+                  </SelectItem>
+
+                  <SelectItem value="Pengarah">
+                    Pengarah
+                  </SelectItem>
+
+                  <SelectItem value="Admin">
+                    Admin
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit" className="bg-[#2563eb] hover:bg-[#1d4ed8]">Daftar Pekerja</Button>
+
+            {/* Butang */}
+            <div className="md:col-span-2 flex justify-end pt-2">
+              <Button
+                type="submit"
+                className="bg-[#2563eb] hover:bg-[#1d4ed8]"
+              >
+                Daftar Pekerja
+              </Button>
+            </div>
+
           </form>
+
         </CardContent>
       </Card>
 
+      {/* Senarai Pekerja */}
       <Card className="border-[#e2e8f0] shadow-sm rounded-xl overflow-hidden">
+
         <CardHeader className="px-6 py-5 border-b border-[#e2e8f0]">
-          <CardTitle className="text-lg font-bold">Senarai Pekerja Registered</CardTitle>
+          <CardTitle className="text-lg font-bold">
+            Senarai Pekerja
+          </CardTitle>
         </CardHeader>
+
         <CardContent className="p-0">
+
           <Table>
+
             <TableHeader className="bg-[#f8fafc]">
               <TableRow className="hover:bg-transparent border-b border-[#e2e8f0]">
-                <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6">Nama</TableHead>
-                <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">Emel</TableHead>
-                <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">Peranan</TableHead>
-                <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6 text-right">Tindakan</TableHead>
+
+                <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6">
+                  Nama
+                </TableHead>
+
+                <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">
+                  Jawatan
+                </TableHead>
+
+                <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">
+                  Emel
+                </TableHead>
+
+                <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">
+                  Peranan
+                </TableHead>
+
+                <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6 text-right">
+                  Tindakan
+                </TableHead>
+
               </TableRow>
             </TableHeader>
+
             <TableBody>
+
               {data.users.map((u: any) => (
-                <TableRow key={u.id} className="border-b border-[#e2e8f0] hover:bg-slate-50/50">
-                  <TableCell className="px-6 py-4 font-bold text-[13px] text-[#0f172a]">{u.name}</TableCell>
-                  <TableCell className="text-[13px] text-[#64748b]">{u.email}</TableCell>
+                <TableRow
+                  key={u.id}
+                  className="border-b border-[#e2e8f0] hover:bg-slate-50/50"
+                >
+
+                  <TableCell className="px-6 py-4 font-bold text-[13px] text-[#0f172a]">
+                    {u.name}
+                  </TableCell>
+
+                  <TableCell className="text-[13px] text-[#64748b]">
+                    {u.position || '-'}
+                  </TableCell>
+
+                  <TableCell className="text-[13px] text-[#64748b]">
+                    {u.email}
+                  </TableCell>
+
                   <TableCell>
-                    <Badge variant="outline" className="text-[11px] uppercase bg-slate-100 font-bold text-[#2563eb] border-slate-200">
+                    <Badge
+                      variant="outline"
+                      className="text-[11px] uppercase bg-slate-100 font-bold text-[#2563eb] border-slate-200"
+                    >
                       {u.role}
                     </Badge>
                   </TableCell>
+
                   <TableCell className="px-6 text-right">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="h-8 w-8 text-[#64748b] hover:text-[#ef4444]"
                       onClick={() => handleDeleteUser(u.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>
+
                 </TableRow>
               ))}
+
+              {data.users.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="text-center py-10 text-[#64748b]"
+                  >
+                    Tiada pekerja didaftarkan.
+                  </TableCell>
+                </TableRow>
+              )}
+
             </TableBody>
+
           </Table>
+
         </CardContent>
       </Card>
+
     </div>
   );
 };
-
 // --- Staff View ---
 
 const StaffView = ({ user, data, onRefresh }: { user: User, data: any, onRefresh: () => void }) => {
