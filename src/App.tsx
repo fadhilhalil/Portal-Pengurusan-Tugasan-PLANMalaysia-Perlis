@@ -2354,6 +2354,10 @@ const Reports = ({ data }: { data: any }) => {
   toast.success('Laporan berjaya dieksport.');
 };
 
+const allStaff = users.filter(
+  (user) => user.role === 'Staff'
+);
+
 const performanceData = allStaff.map((user) => {
   const userTasks = filteredTasks.filter(
     (task) => task.assignedTo === user.id
@@ -2372,7 +2376,9 @@ const performanceData = allStaff.map((user) => {
   ).length;
 
   const overdue = userTasks.filter((task) => {
-    if (task.status === 'Completed') return false;
+    if (task.status === 'Completed') {
+      return false;
+    }
 
     return task.deadline
       ? new Date(task.deadline) < today
@@ -2396,48 +2402,6 @@ const performanceData = allStaff.map((user) => {
     completion,
   };
 });
-    .map((user) => {
-      const userTasks = filteredTasks.filter(
-        (task) => task.assignedTo === user.id
-      );
-
-      const completed = userTasks.filter(
-        (task) => task.status === 'Completed'
-      ).length;
-
-      const progress = userTasks.filter(
-        (task) => task.status === 'In Progress'
-      ).length;
-
-      const pending = userTasks.filter(
-        (task) => task.status === 'Pending'
-      ).length;
-
-      const overdue = userTasks.filter((task) => {
-        if (task.status === 'Completed') return false;
-
-        return task.deadline
-          ? new Date(task.deadline) < today
-          : false;
-      }).length;
-
-      const completion =
-        userTasks.length > 0
-          ? Math.round(
-              (completed / userTasks.length) * 100
-            )
-          : 0;
-
-      return {
-        ...user,
-        total: userTasks.length,
-        completed,
-        progress,
-        pending,
-        overdue,
-        completion,
-      };
-    });
 
   return (
     <div className="space-y-6">
