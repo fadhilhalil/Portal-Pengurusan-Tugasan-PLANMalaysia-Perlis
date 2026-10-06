@@ -2180,6 +2180,30 @@ const Reports = ({ data }: { data: any }) => {
   const users: User[] = Array.isArray(data.users) ? data.users : [];
   const tasks: Task[] = Array.isArray(data.tasks) ? data.tasks : [];
   const projects: Project[] = Array.isArray(data.projects) ? data.projects : [];
+  const totalProjects = projects.length;
+
+const completedProjects = projects.filter(
+  (project) => project.status === 'Selesai'
+).length;
+
+const inProgressProjects = projects.filter(
+  (project) => project.status === 'Dalam Proses'
+).length;
+
+const planningProjects = projects.filter(
+  (project) => project.status === 'Dalam Perancangan'
+).length;
+
+const unfinishedProjects = projects.filter(
+  (project) => project.status === 'Belum Selesai'
+).length;
+
+const projectCompletionRate =
+  totalProjects > 0
+    ? Math.round(
+        (completedProjects / totalProjects) * 100
+      )
+    : 0;
   const reportProjects = projects;
   const filteredTasks = tasks.filter((task: Task) => {
     const matchesUser =
@@ -2707,7 +2731,7 @@ const performanceData = allStaff.map((user) => {
                   </div>
 
                   <div className="text-2xl font-extrabold text-[#0f172a] mt-1">
-                    {filteredTasks.length}
+                    {totalProjects}
                   </div>
                 </CardContent>
               </Card>
