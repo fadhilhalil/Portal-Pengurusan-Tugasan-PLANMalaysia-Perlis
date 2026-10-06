@@ -1527,100 +1527,174 @@ const StaffView = ({ user, data, onRefresh }: { user: User, data: any, onRefresh
             </CardContent>
           </Card>
 
-          <Card className="border-[#e2e8f0] shadow-sm rounded-xl overflow-hidden">
-            <CardHeader className="px-6 py-5 border-b border-[#e2e8f0]">
-              <CardTitle className="text-lg font-bold">Senarai Tugasan Jabatan</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader className="bg-[#f8fafc]">
-                  <TableRow className="hover:bg-transparent border-b border-[#e2e8f0]">
-                    <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6">Tugasan</TableHead>
-                    <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">Staff Terlibat</TableHead>
-                    <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">Tarikh Dibuat</TableHead>
-                    <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">Tarikh Akhir</TableHead>
-                    <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">Status</TableHead>
-                    <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">Deskripsi</TableHead>
-                    <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6 text-right">Tindakan</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {allProjects.map((p: any) => (
-                    <TableRow key={p.id} className="border-b border-[#e2e8f0] hover:bg-slate-50/50">
-                      <TableCell className="px-6 py-4 font-bold text-[13px] text-[#0f172a]">{p.name}</TableCell>
-                      <TableCell className="text-[13px] text-[#64748b]">
-                        <div className="flex flex-wrap gap-1">
-                          {p.staffIds?.map((sid: string) => (
-                            <Badge key={sid} variant="outline" className="text-[10px] py-0 h-5 bg-white">
-                              {data.users.find((u: any) => u.id === sid)?.name || sid}
-                            </Badge>
-                          )) || (data.users.find((u: any) => u.id === p.staffId)?.name || '-')}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-[13px] text-[#64748b]">{format(new Date(p.createdAt), 'dd MMM yyyy')}</TableCell>
-                      <TableCell className="text-[13px] text-[#64748b]">{p.endDate ? format(new Date(p.endDate), 'dd MMM yyyy') : '-'}</TableCell>
-                      <TableCell>
-                        <Select 
-                          value={p.status || 'Dalam Perancangan'} 
-                          onValueChange={async (v: ProjectStatus) => {
-                            await api.updateProject(p.id, { status: v });
-                            toast.success('Status tugasan dikemaskini.');
-                            onRefresh();
-                          }}
-                        >
-                          <SelectTrigger className="border-none shadow-none p-0 h-auto bg-transparent focus:ring-0">
-                            <span className={`status-pill ${
-                              p.status === 'Selesai' ? 'status-done' : 
-                              p.status === 'Dalam Proses' ? 'status-progress' : 
-                              p.status === 'Belum Selesai' ? 'status-pending' : 'status-info'
-                            }`}>
-                              {p.status || 'Dalam Perancangan'}
-                            </span>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Dalam Perancangan">Dalam Perancangan</SelectItem>
-                            <SelectItem value="Dalam Proses">Dalam Proses</SelectItem>
-                            <SelectItem value="Belum Selesai">Belum Selesai</SelectItem>
-                            <SelectItem value="Selesai">Selesai</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="text-[13px] text-[#64748b] max-w-xs truncate">{p.description}</TableCell>
-                      <TableCell className="px-6 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {(p.staffIds?.includes(user.id) || p.staffId === user.id || user.role === 'Admin') && (
-                            <>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 text-[#64748b] hover:text-[#2563eb]"
-                                onClick={() => handleOpenEdit(p)}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 text-[#64748b] hover:text-[#ef4444]"
-                                onClick={() => handleDeleteProject(p.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {allProjects.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-12 text-[#64748b] text-sm">Tiada projek untuk dipaparkan.</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+         <Card className="border-[#e2e8f0] shadow-sm rounded-xl overflow-hidden">
+  <CardHeader className="px-6 py-5 border-b border-[#e2e8f0]">
+    <CardTitle className="text-lg font-bold">
+      Senarai Tugasan Saya
+    </CardTitle>
+
+    <CardDescription className="text-[#64748b]">
+      Senarai tugasan yang telah diberikan kepada anda.
+    </CardDescription>
+  </CardHeader>
+
+  <CardContent className="p-0">
+    <Table>
+      <TableHeader className="bg-[#f8fafc]">
+        <TableRow className="hover:bg-transparent border-b border-[#e2e8f0]">
+
+          <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6">
+            Tugasan
+          </TableHead>
+
+          <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">
+            Projek
+          </TableHead>
+
+          <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">
+            Tarikh Mula
+          </TableHead>
+
+          <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">
+            Tarikh Akhir
+          </TableHead>
+
+          <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10">
+            Status
+          </TableHead>
+
+          <TableHead className="text-[10px] uppercase font-bold text-[#64748b] h-10 px-6">
+            Deskripsi
+          </TableHead>
+
+        </TableRow>
+      </TableHeader>
+
+      <TableBody>
+        {myTasks
+          .slice()
+          .sort(
+            (a: any, b: any) =>
+              new Date(a.deadline).getTime() -
+              new Date(b.deadline).getTime()
+          )
+          .map((task: any) => {
+
+            const project = data.projects.find(
+              (p: any) => p.id === task.projectId
+            );
+
+            return (
+              <TableRow
+                key={task.id}
+                className="border-b border-[#e2e8f0] hover:bg-slate-50/50"
+              >
+
+                {/* Tugasan */}
+                <TableCell className="px-6 py-4">
+                  <p className="font-bold text-[13px] text-[#0f172a]">
+                    {task.title}
+                  </p>
+                </TableCell>
+
+                {/* Projek */}
+                <TableCell className="text-[13px] text-[#64748b]">
+                  {project?.name || '-'}
+                </TableCell>
+
+                {/* Tarikh Mula */}
+                <TableCell className="text-[13px] text-[#64748b]">
+                  {task.startDate
+                    ? format(
+                        new Date(task.startDate),
+                        'dd MMM yyyy'
+                      )
+                    : '-'}
+                </TableCell>
+
+                {/* Tarikh Akhir */}
+                <TableCell className="text-[13px] text-[#64748b]">
+                  {task.deadline
+                    ? format(
+                        new Date(task.deadline),
+                        'dd MMM yyyy'
+                      )
+                    : '-'}
+                </TableCell>
+
+                {/* Status */}
+                <TableCell>
+                  <Select
+                    value={task.status}
+                    onValueChange={async (value) => {
+                      await api.updateTask(task.id, {
+                        status: value as Task['status'],
+                      });
+
+                      toast.success(
+                        'Status tugasan berjaya dikemaskini.'
+                      );
+
+                      onRefresh();
+                    }}
+                  >
+                    <SelectTrigger className="border-none shadow-none p-0 h-auto bg-transparent focus:ring-0 w-auto">
+                      <span
+                        className={`status-pill ${
+                          task.status === 'Completed'
+                            ? 'status-done'
+                            : task.status === 'In Progress'
+                              ? 'status-progress'
+                              : 'status-pending'
+                        }`}
+                      >
+                        {task.status === 'Completed'
+                          ? 'Selesai'
+                          : task.status === 'In Progress'
+                            ? 'Sedang Berjalan'
+                            : 'Belum Mula'}
+                      </span>
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value="Pending">
+                        Belum Mula
+                      </SelectItem>
+
+                      <SelectItem value="In Progress">
+                        Sedang Berjalan
+                      </SelectItem>
+
+                      <SelectItem value="Completed">
+                        Selesai
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+
+                {/* Deskripsi */}
+                <TableCell className="text-[13px] text-[#64748b] max-w-xs truncate px-6">
+                  {task.description || '-'}
+                </TableCell>
+
+              </TableRow>
+            );
+          })}
+
+        {myTasks.length === 0 && (
+          <TableRow>
+            <TableCell
+              colSpan={6}
+              className="text-center py-12 text-[#64748b] text-sm"
+            >
+              Tiada tugasan diberikan kepada anda.
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  </CardContent>
+</Card>
         </TabsContent>
 
         <TabsContent value="timeline" className="outline-none">
