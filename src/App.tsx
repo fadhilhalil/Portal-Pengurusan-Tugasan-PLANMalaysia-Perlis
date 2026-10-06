@@ -2975,7 +2975,7 @@ export default function App() {
     { id: 'staff', label: 'Senarai Tugasan Jabatan', icon: Briefcase, roles: ['Staff'] },
     { id: 'pengarah', label: 'Pantauan Tugasan', icon: CheckSquare, roles: ['Pengarah'] },
     { id: 'admin', label: 'Pengurusan Staf', icon: Users, roles: ['Admin'] },
-    { id: 'reports', label: 'Laporan', icon: FileText, roles: ['Pengarah', 'Staff'] },
+    { id: 'reports', label: 'Laporan', icon: FileText, roles: ['Pengarah', 'Admin'] },
     { id: 'directory', label: 'Direktori Staf', icon: UserCheck, roles: ['All'] },
   ];
 
