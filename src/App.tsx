@@ -2098,66 +2098,835 @@ const PengarahView = ({ data, onRefresh }: { data: any, onRefresh: () => void })
 // --- Reports View ---
 
 const Reports = ({ data }: { data: any }) => {
-  const generateReport = (title: string) => {
-    toast.success(`Menjana ${title}... Laporan telah dimuat turun secara automatik.`);
+  const [reportType, setReportType] = useState('summary');
+  const [selectedUser, setSelectedUser] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedMonth, setSelectedMonth] = useState('');
+
+  const users: User[] = Array.isArray(data.users) ? data.users : [];
+  const tasks: Task[] = Array.isArray(data.tasks) ? data.tasks : [];
+  const projects: Project[] = Array.isArray(data.projects) ? data.projects : [];
+
+  const filteredTasks = tasks.filter((task: Task) => {
+    const matchesUser =
+      selectedUser === 'all' ||
+      task.assignedTo === selectedUser;
+
+    const matchesStatus =
+      selectedStatus === 'all' ||
+      task.status === selectedStatus;
+
+    const taskDate = task.createdAt || task.startDate || '';
+    const matchesMonth =
+      !selectedMonth ||
+      taskDate.slice(0, 7) === selectedMonth;
+
+    return matchesUser && matchesStatus && matchesMonth;
+  });
+
+  const today = new Date();
+
+  const overdueTasks = filteredTasks.filter((task: Task) => {
+    if (task.status === 'Completed') return false;
+    if (!task.deadline) return false;
+
+    return new Date(task.deadline) < today;
+  });
+
+  const completedTasks = filteredTasks.filter(
+    (task: Task) => task.status === 'Completed'
+  );
+
+  const inProgressTasks = filteredTasks.filter(
+    (task: Task) => task.status === 'In Progress'
+  );
+
+  const pendingTasks = filteredTasks.filter(
+    (task: Task) => task.status === 'Pending'
+  );
+
+  const completionRate =
+    filteredTasks.length > 0
+      ? Math.round(
+          (completedTasks.length / filteredTasks.length) * 100
+        )
+      : 0;
+
+  const getUserName = (userId: string) => {
+    return (
+      users.find((user) => user.id === userId)?.name ||
+      'Tidak Ditentukan'
+    );
   };
+
+  const getProjectName = (projectId: string) => {
+    return (
+      projects.find((project) => project.id === projectId)?.name ||
+      'Tiada Projek'
+    );
+  };
+
+  const formatReportDate = (value?: string) => {
+    if (!value) return '-';
+
+    try {
+      return format(new Date(value), 'dd/MM/yyyy');
+    } catch {
+      return '-';
+    }
+  };
+
+  const getReportTitle = () => {
+    switch (reportType) {
+      case 'performance':
+        return 'Laporan Prestasi Pekerja';
+
+      case 'overdue':
+        return 'Laporan Tugasan Lewat';
+
+      case 'status':
+        return 'Laporan Status Tugasan';
+
+      case 'monthly':
+        return 'Laporan Bulanan Jabatan';
+
+      default:
+        return 'Laporan Ringkasan Pengurusan';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'Completed':
+        return 'Selesai';
+
+      case 'In Progress':
+        return 'Sedang Berjalan';
+
+      case 'Pending':
+        return 'Belum Mula';
+
+      default:
+        return status;
+    }
+  };
+
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case 'Completed':
+        return 'bg-emerald-100 text-emerald-700';
+
+      case 'In Progress':
+        return 'bg-blue-100 text-blue-700';
+
+      case 'Pending':
+        return 'bg-amber-100 text-amber-700';
+
+      default:
+        return 'bg-slate-100 text-slate-700';
+    }
+  };
+
+  const printReport = () => {
+    window.print();
+  };
+
+  const downloadCSV = () => {
+    let rows: string[][] = [];
+
+    if (reportType === 'performance') {
+      rows = [
+        [
+          'Nama Pekerja',
+          'Jumlah Tugasan',
+          'Selesai',
+          'Sedang Berjalan',
+          'Belum Mula',
+          'Lewat',
+          'Kadar Selesai (%)',
+        ],
+        ...users
+          .filter((user) => user.role === 'Staff')
+          .map((user) => {
+            const userTasks = filteredTasks.filter(
+              (task) => task.assignedTo === user.id
+            );
+
+            const completed = userTasks.filter(
+              (task) => task.status === 'Completed'
+            ).length;
+
+            const progress = userTasks.filter(
+              (task) => task.status === 'In Progress'
+            ).length;
+
+            const pending = userTasks.filter(
+              (task) => task.status === 'Pending'
+            ).length;
+
+            const overdue = userTasks.filter((task) => {
+              if (task.status === 'Completed') return false;
+              return task.deadline
+                ? new Date(task.deadline) < today
+                : false;
+            }).length;
+
+            const rate =
+              userTasks.length > 0
+                ? Math.round(
+                    (completed / userTasks.length) * 100
+                  )
+                : 0;
+
+            return [
+              user.name,
+              String(userTasks.length),
+              String(completed),
+              String(progress),
+              String(pending),
+              String(overdue),
+              String(rate),
+            ];
+          }),
+      ];
+    } else {
+      rows = [
+        [
+          'Tugasan',
+          'Pekerja',
+          'Projek',
+          'Status',
+          'Tarikh Mula',
+          'Tarikh Akhir',
+        ],
+        ...filteredTasks.map((task) => [
+          task.title,
+          getUserName(task.assignedTo),
+          getProjectName(task.projectId),
+          getStatusLabel(task.status),
+          formatReportDate(task.startDate),
+          formatReportDate(task.deadline),
+        ]),
+      ];
+    }
+
+    const csvContent = rows
+      .map((row) =>
+        row
+          .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+          .join(',')
+      )
+      .join('\n');
+
+    const blob = new Blob(
+      ['\uFEFF' + csvContent],
+      { type: 'text/csv;charset=utf-8;' }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download =
+      `laporan-planmalaysia-${reportType}-${new Date()
+        .toISOString()
+        .slice(0, 10)}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+    toast.success('Laporan berjaya dieksport.');
+  };
+
+  const performanceData = users
+    .filter((user) => user.role === 'Staff')
+    .map((user) => {
+      const userTasks = filteredTasks.filter(
+        (task) => task.assignedTo === user.id
+      );
+
+      const completed = userTasks.filter(
+        (task) => task.status === 'Completed'
+      ).length;
+
+      const progress = userTasks.filter(
+        (task) => task.status === 'In Progress'
+      ).length;
+
+      const pending = userTasks.filter(
+        (task) => task.status === 'Pending'
+      ).length;
+
+      const overdue = userTasks.filter((task) => {
+        if (task.status === 'Completed') return false;
+
+        return task.deadline
+          ? new Date(task.deadline) < today
+          : false;
+      }).length;
+
+      const completion =
+        userTasks.length > 0
+          ? Math.round(
+              (completed / userTasks.length) * 100
+            )
+          : 0;
+
+      return {
+        ...user,
+        total: userTasks.length,
+        completed,
+        progress,
+        pending,
+        overdue,
+        completion,
+      };
+    });
 
   return (
     <div className="space-y-6">
+
+      {/* Header */}
       <Card className="border-[#e2e8f0] shadow-sm rounded-xl">
         <CardHeader className="px-6 py-5 border-b border-[#e2e8f0]">
-          <CardTitle className="text-lg font-bold">Pengurusan Laporan & Muat Turun</CardTitle>
-          <CardDescription className="text-[#64748b]">Jana laporan prestasi tugasan, staf, dan rekod jabatan.</CardDescription>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <CardTitle className="text-lg font-bold text-[#0f172a]">
+                Laporan Pengurusan Tugasan
+              </CardTitle>
+
+              <CardDescription className="text-[#64748b]">
+                Jana dan cetak laporan pemantauan tugasan PLANMalaysia Perlis.
+              </CardDescription>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={printReport}
+                className="border-[#e2e8f0]"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Cetak / PDF
+              </Button>
+
+              <Button
+                onClick={downloadCSV}
+                className="bg-[#2563eb] hover:bg-[#1d4ed8]"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Eksport Excel
+              </Button>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="bg-slate-50 border border-slate-200 shadow-none rounded-xl">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base font-bold text-[#0f172a]">Laporan Bulanan Jabatan</CardTitle>
-                <CardDescription className="text-xs">Ringkasan status tugasan bulanan</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <Button 
-                  className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white" 
-                  onClick={() => generateReport('Laporan Bulanan Jabatan')}
-                >
-                  <FileText className="w-4 h-4 mr-2" /> Muat Turun PDF
-                </Button>
-              </CardContent>
-            </Card>
 
-            <Card className="bg-slate-50 border border-slate-200 shadow-none rounded-xl">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base font-bold text-[#0f172a]">Prestasi & KPI Pekerja</CardTitle>
-                <CardDescription className="text-xs">Statistik tugasan mengikut staf</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <Button 
-                  className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white" 
-                  onClick={() => generateReport('Laporan Prestasi Pekerja')}
-                >
-                  <FileText className="w-4 h-4 mr-2" /> Muat Turun Excel
-                </Button>
-              </CardContent>
-            </Card>
+        {/* Filter */}
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-            <Card className="bg-slate-50 border border-slate-200 shadow-none rounded-xl">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base font-bold text-[#0f172a]">Ringkasan Status Tugasan</CardTitle>
-                <CardDescription className="text-xs">Analisis kemajuan tugasan aktif</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <Button 
-                  className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white" 
-                  onClick={() => generateReport('Ringkasan Status Tugasan')}
-                >
-                  <FileText className="w-4 h-4 mr-2" /> Jana Laporan Ringkas
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Jenis Laporan */}
+            <div className="space-y-2">
+              <Label className="text-[11px] font-bold text-[#64748b] uppercase">
+                Jenis Laporan
+              </Label>
+
+              <Select
+                value={reportType}
+                onValueChange={setReportType}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="summary">
+                    Ringkasan Pengurusan
+                  </SelectItem>
+
+                  <SelectItem value="performance">
+                    Prestasi Pekerja
+                  </SelectItem>
+
+                  <SelectItem value="overdue">
+                    Tugasan Lewat
+                  </SelectItem>
+
+                  <SelectItem value="status">
+                    Status Tugasan
+                  </SelectItem>
+
+                  <SelectItem value="monthly">
+                    Laporan Bulanan
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Pekerja */}
+            <div className="space-y-2">
+              <Label className="text-[11px] font-bold text-[#64748b] uppercase">
+                Pekerja
+              </Label>
+
+              <Select
+                value={selectedUser}
+                onValueChange={setSelectedUser}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Semua Pekerja" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="all">
+                    Semua Pekerja
+                  </SelectItem>
+
+                  {users
+                    .filter((user) => user.role === 'Staff')
+                    .map((user) => (
+                      <SelectItem
+                        key={user.id}
+                        value={user.id}
+                      >
+                        {user.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Status */}
+            <div className="space-y-2">
+              <Label className="text-[11px] font-bold text-[#64748b] uppercase">
+                Status
+              </Label>
+
+              <Select
+                value={selectedStatus}
+                onValueChange={setSelectedStatus}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Semua Status" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="all">
+                    Semua Status
+                  </SelectItem>
+
+                  <SelectItem value="Pending">
+                    Belum Mula
+                  </SelectItem>
+
+                  <SelectItem value="In Progress">
+                    Sedang Berjalan
+                  </SelectItem>
+
+                  <SelectItem value="Completed">
+                    Selesai
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Bulan */}
+            <div className="space-y-2">
+              <Label className="text-[11px] font-bold text-[#64748b] uppercase">
+                Bulan
+              </Label>
+
+              <Input
+                type="month"
+                value={selectedMonth}
+                onChange={(e) =>
+                  setSelectedMonth(e.target.value)
+                }
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Printable Report */}
+      <div id="report-print-area">
+
+        <Card className="border-[#e2e8f0] shadow-sm rounded-xl">
+          <CardHeader className="px-6 py-5 border-b border-[#e2e8f0]">
+
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] uppercase font-bold text-[#2563eb] tracking-wider">
+                  PLANMalaysia Perlis
+                </p>
+
+                <CardTitle className="text-xl font-extrabold text-[#0f172a] mt-1">
+                  {getReportTitle()}
+                </CardTitle>
+
+                <CardDescription className="text-[#64748b] mt-1">
+                  Sistem Pengurusan Tugasan Jabatan
+                </CardDescription>
+              </div>
+
+              <img
+                src={logoPMPerlis}
+                alt="PLANMalaysia Perlis"
+                className="h-14 w-auto object-contain"
+              />
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-6 space-y-6">
+
+            {/* KPI */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+
+              <Card className="border-slate-200 shadow-none">
+                <CardContent className="p-4">
+                  <div className="text-xs text-[#64748b]">
+                    Jumlah Tugasan
+                  </div>
+
+                  <div className="text-2xl font-extrabold text-[#0f172a] mt-1">
+                    {filteredTasks.length}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200 shadow-none">
+                <CardContent className="p-4">
+                  <div className="text-xs text-[#64748b]">
+                    Selesai
+                  </div>
+
+                  <div className="text-2xl font-extrabold text-emerald-600 mt-1">
+                    {completedTasks.length}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200 shadow-none">
+                <CardContent className="p-4">
+                  <div className="text-xs text-[#64748b]">
+                    Sedang Berjalan
+                  </div>
+
+                  <div className="text-2xl font-extrabold text-blue-600 mt-1">
+                    {inProgressTasks.length}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200 shadow-none">
+                <CardContent className="p-4">
+                  <div className="text-xs text-[#64748b]">
+                    Belum Mula
+                  </div>
+
+                  <div className="text-2xl font-extrabold text-amber-600 mt-1">
+                    {pendingTasks.length}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200 shadow-none">
+                <CardContent className="p-4">
+                  <div className="text-xs text-[#64748b]">
+                    Lewat
+                  </div>
+
+                  <div className="text-2xl font-extrabold text-red-600 mt-1">
+                    {overdueTasks.length}
+                  </div>
+                </CardContent>
+              </Card>
+
+            </div>
+
+            {/* Completion */}
+            <Card className="border-blue-100 bg-blue-50/50 shadow-none">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <p className="text-sm font-bold text-[#0f172a]">
+                      Kadar Penyelesaian Tugasan
+                    </p>
+
+                    <p className="text-xs text-[#64748b]">
+                      Berdasarkan rekod yang ditapis
+                    </p>
+                  </div>
+
+                  <span className="text-2xl font-extrabold text-[#2563eb]">
+                    {completionRate}%
+                  </span>
+                </div>
+
+                <div className="w-full h-3 bg-white rounded-full overflow-hidden border border-blue-100">
+                  <div
+                    className="h-full bg-[#2563eb] rounded-full transition-all"
+                    style={{ width: `${completionRate}%` }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Prestasi Pekerja */}
+            {reportType === 'performance' && (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-base font-bold text-[#0f172a]">
+                    Prestasi Mengikut Pekerja
+                  </h3>
+
+                  <p className="text-xs text-[#64748b]">
+                    Ringkasan tugasan setiap pekerja.
+                  </p>
+                </div>
+
+                <div className="border rounded-xl overflow-hidden">
+                  <Table>
+                    <TableHeader className="bg-slate-50">
+                      <TableRow>
+                        <TableHead>Pekerja</TableHead>
+                        <TableHead className="text-center">
+                          Jumlah
+                        </TableHead>
+                        <TableHead className="text-center">
+                          Selesai
+                        </TableHead>
+                        <TableHead className="text-center">
+                          Berjalan
+                        </TableHead>
+                        <TableHead className="text-center">
+                          Belum Mula
+                        </TableHead>
+                        <TableHead className="text-center">
+                          Lewat
+                        </TableHead>
+                        <TableHead className="text-center">
+                          Kadar Siap
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+
+                    <TableBody>
+                      {performanceData.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-semibold">
+                            {item.name}
+                          </TableCell>
+
+                          <TableCell className="text-center">
+                            {item.total}
+                          </TableCell>
+
+                          <TableCell className="text-center text-emerald-600 font-semibold">
+                            {item.completed}
+                          </TableCell>
+
+                          <TableCell className="text-center text-blue-600 font-semibold">
+                            {item.progress}
+                          </TableCell>
+
+                          <TableCell className="text-center text-amber-600 font-semibold">
+                            {item.pending}
+                          </TableCell>
+
+                          <TableCell className="text-center text-red-600 font-semibold">
+                            {item.overdue}
+                          </TableCell>
+
+                          <TableCell className="text-center font-bold">
+                            {item.completion}%
+                          </TableCell>
+                        </TableRow>
+                      ))}
+
+                      {performanceData.length === 0 && (
+                        <TableRow>
+                          <TableCell
+                            colSpan={7}
+                            className="text-center py-10 text-[#64748b]"
+                          >
+                            Tiada data pekerja.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+
+            {/* Tugasan Lewat */}
+            {reportType === 'overdue' && (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-base font-bold text-[#0f172a]">
+                    Senarai Tugasan Lewat
+                  </h3>
+
+                  <p className="text-xs text-[#64748b]">
+                    Tugasan yang melepasi tarikh akhir dan belum selesai.
+                  </p>
+                </div>
+
+                <div className="border rounded-xl overflow-hidden">
+                  <Table>
+                    <TableHeader className="bg-slate-50">
+                      <TableRow>
+                        <TableHead>Tugasan</TableHead>
+                        <TableHead>Pekerja</TableHead>
+                        <TableHead>Projek</TableHead>
+                        <TableHead>Tarikh Akhir</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+
+                    <TableBody>
+                      {overdueTasks.map((task) => (
+                        <TableRow key={task.id}>
+                          <TableCell className="font-semibold">
+                            {task.title}
+                          </TableCell>
+
+                          <TableCell>
+                            {getUserName(task.assignedTo)}
+                          </TableCell>
+
+                          <TableCell>
+                            {getProjectName(task.projectId)}
+                          </TableCell>
+
+                          <TableCell className="text-red-600 font-semibold">
+                            {formatReportDate(task.deadline)}
+                          </TableCell>
+
+                          <TableCell>
+                            <span
+                              className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold ${getStatusClass(
+                                task.status
+                              )}`}
+                            >
+                              {getStatusLabel(task.status)}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+
+                      {overdueTasks.length === 0 && (
+                        <TableRow>
+                          <TableCell
+                            colSpan={5}
+                            className="text-center py-10 text-emerald-600 font-semibold"
+                          >
+                            Tiada tugasan lewat.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+
+            {/* Semua Status / Ringkasan / Bulanan */}
+            {reportType !== 'performance' &&
+              reportType !== 'overdue' && (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-base font-bold text-[#0f172a]">
+                      Senarai Tugasan
+                    </h3>
+
+                    <p className="text-xs text-[#64748b]">
+                      Rekod berdasarkan filter laporan yang dipilih.
+                    </p>
+                  </div>
+
+                  <div className="border rounded-xl overflow-hidden">
+                    <Table>
+                      <TableHeader className="bg-slate-50">
+                        <TableRow>
+                          <TableHead>Tugasan</TableHead>
+                          <TableHead>Pekerja</TableHead>
+                          <TableHead>Projek</TableHead>
+                          <TableHead>Tarikh Mula</TableHead>
+                          <TableHead>Tarikh Akhir</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+
+                      <TableBody>
+                        {filteredTasks.map((task) => (
+                          <TableRow key={task.id}>
+                            <TableCell className="font-semibold">
+                              {task.title}
+                            </TableCell>
+
+                            <TableCell>
+                              {getUserName(task.assignedTo)}
+                            </TableCell>
+
+                            <TableCell>
+                              {getProjectName(task.projectId)}
+                            </TableCell>
+
+                            <TableCell>
+                              {formatReportDate(task.startDate)}
+                            </TableCell>
+
+                            <TableCell>
+                              {formatReportDate(task.deadline)}
+                            </TableCell>
+
+                            <TableCell>
+                              <span
+                                className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold ${getStatusClass(
+                                  task.status
+                                )}`}
+                              >
+                                {getStatusLabel(task.status)}
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+
+                        {filteredTasks.length === 0 && (
+                          <TableRow>
+                            <TableCell
+                              colSpan={6}
+                              className="text-center py-10 text-[#64748b]"
+                            >
+                              Tiada rekod untuk filter yang dipilih.
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
+
+            {/* Footer Laporan */}
+            <div className="pt-4 border-t border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+              <p className="text-[11px] text-[#64748b]">
+                Dijana oleh Sistem Pengurusan Tugasan PLANMalaysia Perlis
+              </p>
+
+              <p className="text-[11px] text-[#64748b]">
+                Tarikh: {format(new Date(), 'dd/MM/yyyy')}
+              </p>
+            </div>
+
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
@@ -2206,7 +2975,7 @@ export default function App() {
     { id: 'staff', label: 'Senarai Tugasan Jabatan', icon: Briefcase, roles: ['Staff'] },
     { id: 'pengarah', label: 'Pantauan Tugasan', icon: CheckSquare, roles: ['Pengarah'] },
     { id: 'admin', label: 'Pengurusan Staf', icon: Users, roles: ['Admin'] },
-    { id: 'reports', label: 'Laporan', icon: FileText, roles: ['Admin', 'Pengarah', 'Staff'] },
+    { id: 'reports', label: 'Laporan', icon: FileText, roles: ['Pengarah', 'Staff'] },
     { id: 'directory', label: 'Direktori Staf', icon: UserCheck, roles: ['All'] },
   ];
 
