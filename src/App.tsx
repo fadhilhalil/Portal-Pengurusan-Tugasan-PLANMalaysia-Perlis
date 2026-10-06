@@ -2180,7 +2180,7 @@ const Reports = ({ data }: { data: any }) => {
   const users: User[] = Array.isArray(data.users) ? data.users : [];
   const tasks: Task[] = Array.isArray(data.tasks) ? data.tasks : [];
   const projects: Project[] = Array.isArray(data.projects) ? data.projects : [];
-
+  const reportProjects = projects;
   const filteredTasks = tasks.filter((task: Task) => {
     const matchesUser =
       selectedUser === 'all' ||
@@ -2218,6 +2218,30 @@ const Reports = ({ data }: { data: any }) => {
   const pendingTasks = filteredTasks.filter(
     (task: Task) => task.status === 'Pending'
   );
+  const totalProjects = reportProjects.length;
+
+const completedProjects = reportProjects.filter(
+  (project) => project.status === 'Selesai'
+).length;
+
+const inProgressProjects = reportProjects.filter(
+  (project) => project.status === 'Dalam Proses'
+).length;
+
+const planningProjects = reportProjects.filter(
+  (project) => project.status === 'Dalam Perancangan'
+).length;
+
+const unfinishedProjects = reportProjects.filter(
+  (project) => project.status === 'Belum Selesai'
+).length;
+
+const projectCompletionRate =
+  totalProjects > 0
+    ? Math.round(
+        (completedProjects / totalProjects) * 100
+      )
+    : 0;
 
   const completionRate =
     filteredTasks.length > 0
