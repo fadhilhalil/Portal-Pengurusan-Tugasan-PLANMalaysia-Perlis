@@ -2242,30 +2242,7 @@ const projectCompletionRate =
   const pendingTasks = filteredTasks.filter(
     (task: Task) => task.status === 'Pending'
   );
-  const totalProjects = reportProjects.length;
 
-const completedProjects = reportProjects.filter(
-  (project) => project.status === 'Selesai'
-).length;
-
-const inProgressProjects = reportProjects.filter(
-  (project) => project.status === 'Dalam Proses'
-).length;
-
-const planningProjects = reportProjects.filter(
-  (project) => project.status === 'Dalam Perancangan'
-).length;
-
-const unfinishedProjects = reportProjects.filter(
-  (project) => project.status === 'Belum Selesai'
-).length;
-
-const projectCompletionRate =
-  totalProjects > 0
-    ? Math.round(
-        (completedProjects / totalProjects) * 100
-      )
-    : 0;
 
   const completionRate =
     filteredTasks.length > 0
