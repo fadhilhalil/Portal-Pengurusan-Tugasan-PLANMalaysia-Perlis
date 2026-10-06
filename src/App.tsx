@@ -807,6 +807,13 @@ const [position, setPosition] = useState('');
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const [role, setRole] = useState<Role>('Staff');
+const [editingUser, setEditingUser] = useState<User | null>(null);
+const [editLoginId, setEditLoginId] = useState('');
+const [editName, setEditName] = useState('');
+const [editPosition, setEditPosition] = useState('');
+const [editEmail, setEditEmail] = useState('');
+const [editPassword, setEditPassword] = useState('');
+const [editRole, setEditRole] = useState<Role>('Staff');
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -865,6 +872,73 @@ const [role, setRole] = useState<Role>('Staff');
       onRefresh();
     }
   };
+  const handleOpenEditUser = (user: User) => {
+  setEditingUser(user);
+  setEditLoginId(user.loginId || '');
+  setEditName(user.name || '');
+  setEditPosition(user.position || '');
+  setEditEmail(user.email || '');
+  setEditPassword('');
+  setEditRole(user.role);
+};
+
+  const handleSaveEditUser = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (
+    !editLoginId.trim() ||
+    !editName.trim() ||
+    !editPosition.trim() ||
+    !editEmail.trim()
+  ) {
+    toast.error('Sila lengkapkan semua maklumat.');
+    return;
+  }
+
+  if (editPassword && editPassword.length < 6) {
+    toast.error('Kata laluan mestilah sekurang-kurangnya 6 aksara.');
+    return;
+  }
+
+  if (!editingUser) return;
+
+  const duplicateLoginId = data.users.find(
+    (u: User) =>
+      u.id !== editingUser.id &&
+      u.loginId?.toLowerCase() === editLoginId.trim().toLowerCase()
+  );
+
+  if (duplicateLoginId) {
+    toast.error('ID pengguna telah digunakan oleh pengguna lain.');
+    return;
+  }
+
+  const updates: Partial<User> = {
+    loginId: editLoginId.trim(),
+    name: editName.trim(),
+    position: editPosition.trim(),
+    email: editEmail.trim(),
+    role: editRole,
+  };
+
+  if (editPassword.trim()) {
+    updates.password = editPassword;
+  }
+
+  await api.updateUser(editingUser.id, updates);
+
+  toast.success('Maklumat pekerja berjaya dikemaskini.');
+
+  setEditingUser(null);
+  setEditLoginId('');
+  setEditName('');
+  setEditPosition('');
+  setEditEmail('');
+  setEditPassword('');
+  setEditRole('Staff');
+
+  onRefresh();
+};
 
   return (
     <div className="space-y-6">
@@ -1071,16 +1145,31 @@ const [role, setRole] = useState<Role>('Staff');
         </Badge>
       </TableCell>
 
-      <TableCell className="px-6 text-right">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-[#64748b] hover:text-[#ef4444]"
-          onClick={() => handleDeleteUser(u.id)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </TableCell>
+    <TableCell className="px-6 text-right">
+  <div className="flex justify-end gap-1">
+
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8 text-[#64748b] hover:text-[#2563eb]"
+      onClick={() => handleOpenEditUser(u)}
+      title="Edit pekerja"
+    >
+      <Pencil className="h-4 w-4" />
+    </Button>
+
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8 text-[#64748b] hover:text-[#ef4444]"
+      onClick={() => handleDeleteUser(u.id)}
+      title="Padam pekerja"
+    >
+      <Trash2 className="h-4 w-4" />
+    </Button>
+
+  </div>
+</TableCell>
     </TableRow>
   ))}
 
@@ -1098,11 +1187,156 @@ const [role, setRole] = useState<Role>('Staff');
           </Table>
         </CardContent>
       </Card>
+      {editingUser && (
+  <Dialog
+    open={!!editingUser}
+    onOpenChange={(open) => {
+      if (!open) {
+        setEditingUser(null);
+      }
+    }}
+  >
+    <DialogContent className="sm:max-w-[550px]">
+      <DialogHeader>
+        <DialogTitle className="text-xl font-bold text-[#0f172a]">
+          Edit Maklumat Pekerja
+        </DialogTitle>
+
+        <DialogDescription className="text-[#64748b]">
+          Kemaskini maklumat, peranan dan akses pengguna.
+        </DialogDescription>
+      </DialogHeader>
+
+      <form
+        onSubmit={handleSaveEditUser}
+        className="space-y-4"
+      >
+        {/* ID Pengguna */}
+        <div className="space-y-2">
+          <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+            ID Pengguna
+          </Label>
+
+          <Input
+            value={editLoginId}
+            onChange={(e) => setEditLoginId(e.target.value)}
+            placeholder="Contoh: ahmad01"
+            required
+          />
+        </div>
+
+        {/* Nama */}
+        <div className="space-y-2">
+          <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+            Nama Penuh
+          </Label>
+
+          <Input
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Jawatan */}
+        <div className="space-y-2">
+          <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+            Jawatan
+          </Label>
+
+          <Input
+            value={editPosition}
+            onChange={(e) => setEditPosition(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Emel */}
+        <div className="space-y-2">
+          <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+            Emel
+          </Label>
+
+          <Input
+            type="email"
+            value={editEmail}
+            onChange={(e) => setEditEmail(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Kata Laluan */}
+        <div className="space-y-2">
+          <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+            Kata Laluan Baharu
+          </Label>
+
+          <Input
+            type="password"
+            value={editPassword}
+            onChange={(e) => setEditPassword(e.target.value)}
+            placeholder="Kosongkan jika tidak mahu tukar"
+          />
+
+          <p className="text-[11px] text-[#64748b]">
+            Biarkan kosong untuk kekalkan kata laluan sedia ada.
+          </p>
+        </div>
+
+        {/* Peranan */}
+        <div className="space-y-2">
+          <Label className="text-[12px] font-bold text-[#64748b] uppercase">
+            Peranan
+          </Label>
+
+          <Select
+            value={editRole}
+            onValueChange={(value: Role) => setEditRole(value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Pilih peranan" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectItem value="Staff">
+                Staff
+              </SelectItem>
+
+              <SelectItem value="Pengarah">
+                Pengarah
+              </SelectItem>
+
+              <SelectItem value="Admin">
+                Admin
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <DialogFooter className="pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setEditingUser(null)}
+          >
+            Batal
+          </Button>
+
+          <Button
+            type="submit"
+            className="bg-[#2563eb] hover:bg-[#1d4ed8]"
+          >
+            Simpan Perubahan
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
+  </Dialog>
+)}
     </div>
   );
 };
 
-// --- Staff View ---
 // --- Staff View ---
 
 const StaffView = ({ user, data, onRefresh }: { user: User, data: any, onRefresh: () => void }) => {
