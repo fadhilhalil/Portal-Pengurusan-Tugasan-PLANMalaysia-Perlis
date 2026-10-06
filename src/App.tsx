@@ -2232,118 +2232,127 @@ const Reports = ({ data }: { data: any }) => {
   };
 
   const downloadCSV = () => {
-    let rows: string[][] = [];
+  let rows: string[][] = [];
 
-    if (reportType === 'performance') {
-      rows = [
-        [
-          'Nama Pekerja',
-          'Jumlah Tugasan',
-          'Selesai',
-          'Sedang Berjalan',
-          'Belum Mula',
-          'Lewat',
-          'Kadar Selesai (%)',
-        ],
-        ...users
-          .filter((user) => user.role === 'Staff')
-          .map((user) => {
-            const userTasks = filteredTasks.filter(
-              (task) => task.assignedTo === user.id
-            );
-
-            const completed = userTasks.filter(
-              (task) => task.status === 'Completed'
-            ).length;
-
-            const progress = userTasks.filter(
-              (task) => task.status === 'In Progress'
-            ).length;
-
-            const pending = userTasks.filter(
-              (task) => task.status === 'Pending'
-            ).length;
-
-            const overdue = userTasks.filter((task) => {
-              if (task.status === 'Completed') return false;
-              return task.deadline
-                ? new Date(task.deadline) < today
-                : false;
-            }).length;
-
-            const rate =
-              userTasks.length > 0
-                ? Math.round(
-                    (completed / userTasks.length) * 100
-                  )
-                : 0;
-
-            return [
-              user.name,
-              String(userTasks.length),
-              String(completed),
-              String(progress),
-              String(pending),
-              String(overdue),
-              String(rate),
-            ];
-          }),
-      ];
-    } else {
-      rows = [
-        [
-          'Tugasan',
-          'Pekerja',
-          'Projek',
-          'Status',
-          'Tarikh Mula',
-          'Tarikh Akhir',
-        ],
-        ...filteredTasks.map((task) => [
-          task.title,
-          getUserName(task.assignedTo),
-          getProjectName(task.projectId),
-          getStatusLabel(task.status),
-          formatReportDate(task.startDate),
-          formatReportDate(task.deadline),
-        ]),
-      ];
-    }
-
-    const csvContent = rows
-      .map((row) =>
-        row
-          .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
-          .join(',')
-      )
-      .join('\n');
-
-    const blob = new Blob(
-      ['\uFEFF' + csvContent],
-      { type: 'text/csv;charset=utf-8;' }
+  if (reportType === 'performance') {
+    const allStaff = users.filter(
+      (user) => user.role === 'Staff'
     );
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    rows = [
+      [
+        'Nama Pekerja',
+        'Jumlah Tugasan',
+        'Selesai',
+        'Sedang Berjalan',
+        'Belum Mula',
+        'Lewat',
+        'Kadar Selesai (%)',
+      ],
 
-    link.href = url;
-    link.download =
-      `laporan-planmalaysia-${reportType}-${new Date()
-        .toISOString()
-        .slice(0, 10)}.csv`;
+      ...allStaff.map((user) => {
+        const userTasks = filteredTasks.filter(
+          (task) => task.assignedTo === user.id
+        );
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+        const completed = userTasks.filter(
+          (task) => task.status === 'Completed'
+        ).length;
 
-    URL.revokeObjectURL(url);
+        const progress = userTasks.filter(
+          (task) => task.status === 'In Progress'
+        ).length;
 
-    toast.success('Laporan berjaya dieksport.');
-  };
+        const pending = userTasks.filter(
+          (task) => task.status === 'Pending'
+        ).length;
 
-  const allStaff = users.filter(
-  (user) => user.role === 'Staff'
-);
+        const overdue = userTasks.filter((task) => {
+          if (task.status === 'Completed') {
+            return false;
+          }
+
+          return task.deadline
+            ? new Date(task.deadline) < today
+            : false;
+        }).length;
+
+        const rate =
+          userTasks.length > 0
+            ? Math.round(
+                (completed / userTasks.length) * 100
+              )
+            : 0;
+
+        return [
+          user.name,
+          String(userTasks.length),
+          String(completed),
+          String(progress),
+          String(pending),
+          String(overdue),
+          String(rate),
+        ];
+      }),
+    ];
+  } else {
+    rows = [
+      [
+        'Tugasan',
+        'Pekerja',
+        'Projek',
+        'Status',
+        'Tarikh Mula',
+        'Tarikh Akhir',
+      ],
+
+      ...filteredTasks.map((task) => [
+        task.title,
+        getUserName(task.assignedTo),
+        getProjectName(task.projectId),
+        getStatusLabel(task.status),
+        formatReportDate(task.startDate),
+        formatReportDate(task.deadline),
+      ]),
+    ];
+  }
+
+  const csvContent = rows
+    .map((row) =>
+      row
+        .map(
+          (cell) =>
+            `"${String(cell).replace(/"/g, '""')}"`
+        )
+        .join(',')
+    )
+    .join('\n');
+
+  const blob = new Blob(
+    ['\uFEFF' + csvContent],
+    {
+      type: 'text/csv;charset=utf-8;',
+    }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+
+  link.download =
+    `laporan-planmalaysia-${reportType}-${new Date()
+      .toISOString()
+      .slice(0, 10)}.csv`;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+
+  toast.success('Laporan berjaya dieksport.');
+};
 
 const performanceData = allStaff.map((user) => {
   const userTasks = filteredTasks.filter(
