@@ -2997,7 +2997,8 @@ const performanceData = allStaff.map((user) => {
         </TableHeader>
 
         <TableBody>
-          {filteredTasks.map((task, index) => {
+          {reportTasks.map((task, index) => {
+
             const progress =
               task.status === 'Completed' ? 100 :
               task.status === 'In Progress' ? 50 : 0;
@@ -3033,7 +3034,7 @@ const performanceData = allStaff.map((user) => {
             );
           })}
 
-          {filteredTasks.length === 0 && (
+          {reportTasks.length === 0 && (
             <TableRow>
               <TableCell
                 colSpan={7}
@@ -3096,6 +3097,23 @@ export default function App() {
     window.clearInterval(timer);
   };
 }, []);
+  
+  // Baca senarai tugasan daripada localStorage
+  const reportTasks = React.useMemo(() => {
+    try {
+      const savedTasks = JSON.parse(
+        localStorage.getItem("planmalaysia_tasks") || "[]"
+      );
+
+      return Array.isArray(savedTasks) && savedTasks.length > 0
+        ? savedTasks
+        : (data?.tasks || []);
+    } catch (error) {
+      console.error("Ralat membaca tugasan:", error);
+      return data?.tasks || [];
+    }
+  }, [data]);
+
 
   if (!data) {
     return (
