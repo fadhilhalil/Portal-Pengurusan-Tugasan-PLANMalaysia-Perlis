@@ -2708,7 +2708,8 @@ const performanceData = allStaff.map((user) => {
                   </div>
 
                   <div className="text-2xl font-extrabold text-[#0f172a] mt-1">
-                    {totalProjects}
+                    {reportType === 'overdue'
+                      ? overdueTasks.length : totalProjects}
                   </div>
                 </CardContent>
               </Card>
