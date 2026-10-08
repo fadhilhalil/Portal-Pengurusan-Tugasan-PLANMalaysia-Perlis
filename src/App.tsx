@@ -2974,6 +2974,81 @@ const performanceData = allStaff.map((user) => {
     </div>
   </div>
 )}
+            
+{/* Jadual Tugasan dalam Laporan Ringkasan Pengurusan */}
+{reportType === 'summary' && (
+  <div className="space-y-3">
+    <h3 className="text-base font-bold text-slate-900">
+      Senarai Tugasan dan Kemajuan Staf
+    </h3>
+
+    <div className="border rounded-xl overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Bil.</TableHead>
+            <TableHead>Nama Tugasan</TableHead>
+            <TableHead>Nama Staf</TableHead>
+            <TableHead>Projek</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Progress</TableHead>
+            <TableHead>Tarikh Akhir</TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {filteredTasks.map((task, index) => {
+            const progress =
+              task.status === 'Completed' ? 100 :
+              task.status === 'In Progress' ? 50 : 0;
+
+            return (
+              <TableRow key={task.id}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{task.title}</TableCell>
+                <TableCell>
+                  {getUserName(task.assignedTo)}
+                </TableCell>
+                <TableCell>
+                  {getProjectName(task.projectId)}
+                </TableCell>
+                <TableCell>
+                  {getStatusLabel(task.status)}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <div className="w-24 h-2 bg-slate-200 rounded-full">
+                      <div
+                        className="h-2 bg-blue-600 rounded-full"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <span>{progress}%</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {formatReportDate(task.deadline)}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+
+          {filteredTasks.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={7}
+                className="text-center py-8"
+              >
+                Tiada tugasan direkodkan.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  </div>
+)}
+
 
             {/* Footer Laporan */}
             <div className="pt-4 border-t border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
