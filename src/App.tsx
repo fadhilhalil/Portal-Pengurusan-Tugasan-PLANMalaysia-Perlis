@@ -2275,24 +2275,27 @@ const projectCompletionRate =
     }
   };
 
-  const getReportTitle = () => {
-    switch (reportType) {
-      case 'performance':
-        return 'Laporan Prestasi Pekerja';
+ const getReportTitle = () => {
+  switch (reportType) {
+    case 'all':
+      return 'Senarai Semua Tugasan';
 
-      case 'overdue':
-        return 'Laporan Tugasan Lewat';
+    case 'performance':
+      return 'Laporan Prestasi Pekerja';
 
-      case 'status':
-        return 'Laporan Status Tugasan';
+    case 'overdue':
+      return 'Laporan Tugasan Lewat';
 
-      case 'monthly':
-        return 'Laporan Bulanan Jabatan';
+    case 'status':
+      return 'Laporan Status Tugasan';
 
-      default:
-        return 'Laporan Ringkasan Pengurusan';
-    }
-  };
+    case 'monthly':
+      return 'Laporan Bulanan';
+
+    default:
+      return 'Laporan Ringkasan Pengurusan';
+  }
+};
 
   const getStatusLabel = (status: string) => {
     switch (status) {
@@ -2561,6 +2564,10 @@ const performanceData = allStaff.map((user) => {
                 <SelectContent>
                   <SelectItem value="summary">
                     Ringkasan Pengurusan
+                  </SelectItem>
+
+                  <SelectItem value="all">
+                    Senarai Semua Tugasan
                   </SelectItem>
 
                   <SelectItem value="performance">
@@ -2881,154 +2888,92 @@ const performanceData = allStaff.map((user) => {
             )}
 
             {/* Tugasan Lewat */}
-            {reportType === 'overdue' && (
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-base font-bold text-[#0f172a]">
-                    Senarai Tugasan Lewat
-                  </h3>
+           {reportType === 'all' && (
+  <div className="space-y-4">
+    <div>
+      <h3 className="text-base font-bold text-[#0f172a]">
+        Senarai Semua Tugasan
+      </h3>
 
-                  <p className="text-xs text-[#64748b]">
-                    Tugasan yang melepasi tarikh akhir dan belum selesai.
-                  </p>
-                </div>
+      <p className="text-xs text-[#64748b]">
+        Keseluruhan tugasan yang direkodkan dalam sistem.
+      </p>
+    </div>
 
-                <div className="border rounded-xl overflow-hidden">
-                  <Table>
-                    <TableHeader className="bg-slate-50">
-                      <TableRow>
-                        <TableHead>Tugasan</TableHead>
-                        <TableHead>Pekerja</TableHead>
-                        <TableHead>Projek</TableHead>
-                        <TableHead>Tarikh Akhir</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
+    <div className="border rounded-xl overflow-hidden">
+      <Table>
+        <TableHeader className="bg-slate-50">
+          <TableRow>
+            <TableHead>Bil.</TableHead>
+            <TableHead>Nama Tugasan</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Tarikh Mula</TableHead>
+            <TableHead>Tarikh Akhir</TableHead>
+          </TableRow>
+        </TableHeader>
 
-                    <TableBody>
-                      {overdueTasks.map((task) => (
-                        <TableRow key={task.id}>
-                          <TableCell className="font-semibold">
-                            {task.title}
-                          </TableCell>
+        <TableBody>
+          {projects.map((project, index) => (
+            <TableRow key={project.id}>
+              <TableCell>
+                {index + 1}
+              </TableCell>
 
-                          <TableCell>
-                            {getUserName(task.assignedTo)}
-                          </TableCell>
+              <TableCell className="font-semibold">
+                {project.name}
+              </TableCell>
 
-                          <TableCell>
-                            {getProjectName(task.projectId)}
-                          </TableCell>
+              <TableCell>
+                <span
+                  className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                    project.status === 'Selesai'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : project.status === 'Dalam Proses'
+                        ? 'bg-blue-100 text-blue-700'
+                        : project.status === 'Dalam Perancangan'
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-slate-100 text-slate-700'
+                  }`}
+                >
+                  {project.status}
+                </span>
+              </TableCell>
 
-                          <TableCell className="text-red-600 font-semibold">
-                            {formatReportDate(task.deadline)}
-                          </TableCell>
+              <TableCell>
+                {project.startDate
+                  ? format(
+                      new Date(project.startDate),
+                      'dd/MM/yyyy'
+                    )
+                  : '-'}
+              </TableCell>
 
-                          <TableCell>
-                            <span
-                              className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold ${getStatusClass(
-                                task.status
-                              )}`}
-                            >
-                              {getStatusLabel(task.status)}
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+              <TableCell>
+                {project.deadline
+                  ? format(
+                      new Date(project.deadline),
+                      'dd/MM/yyyy'
+                    )
+                  : '-'}
+              </TableCell>
+            </TableRow>
+          ))}
 
-                      {overdueTasks.length === 0 && (
-                        <TableRow>
-                          <TableCell
-                            colSpan={5}
-                            className="text-center py-10 text-emerald-600 font-semibold"
-                          >
-                            Tiada tugasan lewat.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            )}
-
-            {/* Semua Status / Ringkasan / Bulanan */}
-            {reportType !== 'performance' &&
-              reportType !== 'overdue' && (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-base font-bold text-[#0f172a]">
-                      Senarai Tugasan
-                    </h3>
-
-                    <p className="text-xs text-[#64748b]">
-                      Rekod berdasarkan filter laporan yang dipilih.
-                    </p>
-                  </div>
-
-                  <div className="border rounded-xl overflow-hidden">
-                    <Table>
-                      <TableHeader className="bg-slate-50">
-                        <TableRow>
-                          <TableHead>Tugasan</TableHead>
-                          <TableHead>Pekerja</TableHead>
-                          <TableHead>Projek</TableHead>
-                          <TableHead>Tarikh Mula</TableHead>
-                          <TableHead>Tarikh Akhir</TableHead>
-                          <TableHead>Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-
-                      <TableBody>
-                        {filteredTasks.map((task) => (
-                          <TableRow key={task.id}>
-                            <TableCell className="font-semibold">
-                              {task.title}
-                            </TableCell>
-
-                            <TableCell>
-                              {getUserName(task.assignedTo)}
-                            </TableCell>
-
-                            <TableCell>
-                              {getProjectName(task.projectId)}
-                            </TableCell>
-
-                            <TableCell>
-                              {formatReportDate(task.startDate)}
-                            </TableCell>
-
-                            <TableCell>
-                              {formatReportDate(task.deadline)}
-                            </TableCell>
-
-                            <TableCell>
-                              <span
-                                className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold ${getStatusClass(
-                                  task.status
-                                )}`}
-                              >
-                                {getStatusLabel(task.status)}
-                              </span>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-
-                        {filteredTasks.length === 0 && (
-                          <TableRow>
-                            <TableCell
-                              colSpan={6}
-                              className="text-center py-10 text-[#64748b]"
-                            >
-                              Tiada rekod untuk filter yang dipilih.
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
-              )}
+          {projects.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={5}
+                className="text-center py-10 text-[#64748b]"
+              >
+                Tiada tugasan direkodkan.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  </div>
+)}
 
             {/* Footer Laporan */}
             <div className="pt-4 border-t border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
