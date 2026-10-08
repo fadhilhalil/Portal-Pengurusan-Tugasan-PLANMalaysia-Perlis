@@ -2177,6 +2177,26 @@ const Reports = ({ data }: { data: any }) => {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedMonth, setSelectedMonth] = useState('');
 
+  
+  // Senarai tugasan untuk Laporan Ringkasan Pengurusan
+  const reportTasks = (() => {
+    try {
+      const savedTasks = JSON.parse(
+        localStorage.getItem('planmalaysia_tasks') || '[]'
+      );
+
+      if (Array.isArray(savedTasks) && savedTasks.length > 0) {
+        return savedTasks;
+      }
+
+      return Array.isArray(data?.tasks) ? data.tasks : [];
+    } catch (error) {
+      console.error('Ralat membaca senarai tugasan:', error);
+      return Array.isArray(data?.tasks) ? data.tasks : [];
+    }
+  })();
+
+
   const users: User[] = Array.isArray(data.users) ? data.users : [];
   const tasks: Task[] = Array.isArray(data.tasks) ? data.tasks : [];
   const projects: Project[] = Array.isArray(data.projects) ? data.projects : [];
