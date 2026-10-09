@@ -2195,6 +2195,60 @@ const Reports = ({ data }: { data: any }) => {
       return Array.isArray(data?.tasks) ? data.tasks : [];
     }
   })();
+  
+  // Statistik berdasarkan senarai tugasan laporan
+  const normalizeReportStatus = (status: unknown) =>
+    String(status ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, ' ');
+
+  const totalReportTasks = reportTasks.length;
+
+  const completedReportTasks = reportTasks.filter(
+    (task: any) =>
+      ['selesai', 'completed', 'done'].includes(
+        normalizeReportStatus(task.status)
+      )
+  ).length;
+
+  const ongoingReportTasks = reportTasks.filter(
+    (task: any) =>
+      ['sedang berjalan', 'in progress', 'ongoing'].includes(
+        normalizeReportStatus(task.status)
+      )
+  ).length;
+
+  const pendingReportTasks = reportTasks.filter(
+    (task: any) =>
+      ['belum mula', 'pending', 'not started'].includes(
+        normalizeReportStatus(task.status)
+      )
+  ).length;
+
+  const overdueReportTasks = reportTasks.filter((task: any) => {
+    const deadline = task.deadline || task.dueDate;
+    if (!deadline) return false;
+
+    const due = new Date(deadline);
+    if (Number.isNaN(due.getTime())) return false;
+
+    due.setHours(23, 59, 59, 999);
+
+    return (
+      due.getTime() < Date.now() &&
+      !['selesai', 'completed', 'done'].includes(
+        normalizeReportStatus(task.status)
+      )
+    );
+  }).length;
+
+  const reportCompletionRate = totalReportTasks > 0
+    ? Math.round(
+        (completedReportTasks / totalReportTasks) * 100
+      )
+    : 0;
+
 
 
   const users: User[] = Array.isArray(data.users) ? data.users : [];
@@ -2812,8 +2866,8 @@ const performanceData = allStaff.map((user) => {
 
                 <div className="w-full h-3 bg-white rounded-full overflow-hidden border border-blue-100">
                   <div
-                    className="h-full bg-[#2563eb] rounded-full transition-all"
-                    style={{ width: `${completionRate}%` }}
+                    className="h-full bg-blue-600 rounded-full"
+                    style={{ width: `${reportCompletionRate}%` }}
                   />
                 </div>
               </CardContent>
