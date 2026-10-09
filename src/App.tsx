@@ -2172,6 +2172,25 @@ const PengarahView = ({ data, onRefresh }: { data: any, onRefresh: () => void })
 // --- Reports View ---
 
 const Reports = ({ data }: { data: any }) => {
+  
+  // Ambil tugasan daripada localStorage
+  const reportTasks = (() => {
+    try {
+      const stored = localStorage.getItem('planmalaysia_tasks');
+
+      const savedTasks = stored ? JSON.parse(stored) : [];
+
+      if (Array.isArray(savedTasks)) {
+        return savedTasks;
+      }
+
+      return Array.isArray(data?.tasks) ? data.tasks : [];
+    } catch (error) {
+      console.error('Ralat membaca tugasan:', error);
+      return Array.isArray(data?.tasks) ? data.tasks : [];
+    }
+  })();
+
   const [reportType, setReportType] = useState('summary');
   const [selectedUser, setSelectedUser] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
