@@ -390,7 +390,7 @@ const PortalHome = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-8 border-t border-white/10">
           <div>
             <p className="text-xs text-blue-200 font-medium">Jumlah Tugasan</p>
-            <p className="text-2xl md:text-3xl font-extrabold mt-1">{totalProjects}</p>
+            <p className="text-2xl md:text-3xl font-extrabold mt-1"> {totalReportTasks}}</p>
           </div>
           <div>
             <p className="text-xs text-blue-200 font-medium">Tugasan Selesai</p>
