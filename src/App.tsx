@@ -3057,7 +3057,7 @@ const performanceData = allStaff.map((user) => {
 {reportType === 'summary' && (
   <div className="space-y-3">
     <h3 className="text-base font-bold text-slate-900">
-      Senarai Tugasan dan Kemajuan Staf
+      Senarai Tugasan dan Status Staf
     </h3>
 
     <div className="border rounded-xl overflow-x-auto">
@@ -3095,17 +3095,6 @@ const performanceData = allStaff.map((user) => {
                   {getStatusLabel(task.status)}
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className="w-24 h-2 bg-slate-200 rounded-full">
-                      <div
-                        className="h-2 bg-blue-600 rounded-full"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    <span>{progress}%</span>
-                  </div>
-                </TableCell>
-                <TableCell>
                   {formatReportDate(task.deadline)}
                 </TableCell>
               </TableRow>
@@ -3115,7 +3104,7 @@ const performanceData = allStaff.map((user) => {
           {reportTasks.length === 0 && (
             <TableRow>
               <TableCell
-                colSpan={7}
+                colSpan={6}
                 className="text-center py-8"
               >
                 Tiada tugasan direkodkan.
