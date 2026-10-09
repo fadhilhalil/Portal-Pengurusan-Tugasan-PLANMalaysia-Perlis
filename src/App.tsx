@@ -2178,55 +2178,6 @@ const Reports = ({ data }: { data: any }) => {
   const [selectedMonth, setSelectedMonth] = useState('');
 
   
-  // Senarai tugasan untuk Laporan Ringkasan Pengurusan
-  const reportTasks = (() => {
-    try {
-      const savedTasks = JSON.parse(
-        localStorage.getItem('planmalaysia_tasks') || '[]'
-      );
-
-      if (Array.isArray(savedTasks) && savedTasks.length > 0) {
-        return savedTasks;
-      }
-
-      return Array.isArray(data?.tasks) ? data.tasks : [];
-    } catch (error) {
-      console.error('Ralat membaca senarai tugasan:', error);
-      return Array.isArray(data?.tasks) ? data.tasks : [];
-    }
-  })();
-  
-const normalizeStatus = (value: unknown) =>
-  String(value ?? '')
-    .trim()
-    .toLowerCase()
-    .replace(/[_-]+/g, ' ')
-    .replace(/\s+/g, ' ');
-
-const totalReportTasks = reportTasks.length;
-
-const completedReportTasks = reportTasks.filter((t: any) =>
-  ['selesai', 'completed', 'done'].includes(
-    normalizeStatus(t.status)
-  )
-).length;
-
-const ongoingReportTasks = reportTasks.filter((t: any) =>
-  ['sedang berjalan', 'in progress', 'ongoing'].includes(
-    normalizeStatus(t.status)
-  )
-).length;
-
-const pendingReportTasks = reportTasks.filter((t: any) =>
-  ['belum mula', 'pending', 'not started'].includes(
-    normalizeStatus(t.status)
-  )
-).length;
-
-const reportCompletionRate = totalReportTasks
-  ? Math.round(completedReportTasks / totalReportTasks * 100)
-  : 0;
-
   
   // Statistik berdasarkan senarai tugasan laporan
   const normalizeReportStatus = (status: unknown) =>
@@ -2878,34 +2829,33 @@ const performanceData = allStaff.map((user) => {
             </div>
 
             {/* Completion */}
-            <Card className="border-blue-100 bg-blue-50/50 shadow-none">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-2">
-                  
-<div className="flex justify-between items-center">
-  <div>
-    <h3 className="font-bold">
-      Kadar Penyelesaian Tugasan
-    </h3>
-    <p className="text-xs text-slate-500">
-      Berdasarkan rekod tugasan
-    </p>
-  </div>
+           
+<Card>
+  <CardContent className="p-5">
+    <div className="flex justify-between items-center">
+      <div>
+        <h3 className="font-bold">
+          Kadar Penyelesaian Tugasan
+        </h3>
+        <p className="text-xs text-slate-500">
+          Berdasarkan rekod tugasan
+        </p>
+      </div>
 
-  <span className="text-2xl font-bold text-blue-600">
-    {reportCompletionRate}%
-  </span>
-</div>
+      <span className="text-2xl font-bold text-blue-600">
+        {reportCompletionRate}%
+      </span>
+    </div>
 
-<div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden mt-3">
-  <div
-    className="h-full bg-blue-600 rounded-full transition-all"
-    style={{ width: `${reportCompletionRate}%` }}
-  />
-</div>
+    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden mt-3">
+      <div
+        className="h-full bg-blue-600 rounded-full"
+        style={{ width: `${reportCompletionRate}%` }}
+      />
+    </div>
+  </CardContent>
+</Card>
 
-              </CardContent>
-            </Card>
 
             {/* Prestasi Pekerja */}
             {reportType === 'performance' && (
