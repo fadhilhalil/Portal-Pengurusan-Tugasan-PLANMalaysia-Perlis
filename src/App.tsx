@@ -2196,6 +2196,38 @@ const Reports = ({ data }: { data: any }) => {
     }
   })();
   
+const normalizeStatus = (value: unknown) =>
+  String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ');
+
+const totalReportTasks = reportTasks.length;
+
+const completedReportTasks = reportTasks.filter((t: any) =>
+  ['selesai', 'completed', 'done'].includes(
+    normalizeStatus(t.status)
+  )
+).length;
+
+const ongoingReportTasks = reportTasks.filter((t: any) =>
+  ['sedang berjalan', 'in progress', 'ongoing'].includes(
+    normalizeStatus(t.status)
+  )
+).length;
+
+const pendingReportTasks = reportTasks.filter((t: any) =>
+  ['belum mula', 'pending', 'not started'].includes(
+    normalizeStatus(t.status)
+  )
+).length;
+
+const reportCompletionRate = totalReportTasks
+  ? Math.round(completedReportTasks / totalReportTasks * 100)
+  : 0;
+
+  
   // Statistik berdasarkan senarai tugasan laporan
   const normalizeReportStatus = (status: unknown) =>
     String(status ?? '')
@@ -2849,27 +2881,29 @@ const performanceData = allStaff.map((user) => {
             <Card className="border-blue-100 bg-blue-50/50 shadow-none">
               <CardContent className="p-5">
                 <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <p className="text-sm font-bold text-[#0f172a]">
-                      Kadar Penyelesaian Tugasan
-                    </p>
+                  
+<div className="flex justify-between items-center">
+  <div>
+    <h3 className="font-bold">
+      Kadar Penyelesaian Tugasan
+    </h3>
+    <p className="text-xs text-slate-500">
+      Berdasarkan rekod tugasan
+    </p>
+  </div>
 
-                    <p className="text-xs text-[#64748b]">
-                      Berdasarkan rekod yang ditapis
-                    </p>
-                  </div>
+  <span className="text-2xl font-bold text-blue-600">
+    {reportCompletionRate}%
+  </span>
+</div>
 
-                  <span className="text-2xl font-extrabold text-[#2563eb]">
-                    {completionRate}%
-                  </span>
-                </div>
+<div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden mt-3">
+  <div
+    className="h-full bg-blue-600 rounded-full transition-all"
+    style={{ width: `${reportCompletionRate}%` }}
+  />
+</div>
 
-                <div className="w-full h-3 bg-white rounded-full overflow-hidden border border-blue-100">
-                  <div
-                    className="h-full bg-blue-600 rounded-full"
-                    style={{ width: `${reportCompletionRate}%` }}
-                  />
-                </div>
               </CardContent>
             </Card>
 
