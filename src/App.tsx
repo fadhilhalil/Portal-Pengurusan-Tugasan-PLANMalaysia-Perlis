@@ -2190,6 +2190,40 @@ const Reports = ({ data }: { data: any }) => {
       return Array.isArray(data?.tasks) ? data.tasks : [];
     }
   })();
+  
+const normalizeStatus = (value: unknown) =>
+  String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ');
+
+const totalReportTasks = reportTasks.length;
+
+const completedReportTasks = reportTasks.filter((task: any) =>
+  ['selesai', 'completed', 'done'].includes(
+    normalizeStatus(task.status)
+  )
+).length;
+
+const ongoingReportTasks = reportTasks.filter((task: any) =>
+  ['sedang berjalan', 'in progress', 'ongoing'].includes(
+    normalizeStatus(task.status)
+  )
+).length;
+
+const pendingReportTasks = reportTasks.filter((task: any) =>
+  ['belum mula', 'pending', 'not started'].includes(
+    normalizeStatus(task.status)
+  )
+).length;
+
+const reportCompletionRate = totalReportTasks > 0
+  ? Math.round(
+      (completedReportTasks / totalReportTasks) * 100
+    )
+  : 0;
+
 
   const [reportType, setReportType] = useState('summary');
   const [selectedUser, setSelectedUser] = useState('all');
